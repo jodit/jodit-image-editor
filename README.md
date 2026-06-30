@@ -98,6 +98,22 @@ new ImageEditor({ container: '#editor', plugins: [stickerPlugin] });
 
 See [`src/plugins/README.md`](src/plugins/README.md).
 
+## Internationalisation
+
+The core bundle ships **English only** (gettext-style: the English string is the
+key). Five locales ship as separate, opt-in modules — **`ru`, `es`, `fr`, `de`,
+`zh`** — and switching language is just an `update`:
+
+```ts
+import { ImageEditor } from '@jodit/image-editor';
+import ru from '@jodit/image-editor/locales/ru';
+
+const editor = new ImageEditor({ container: '#editor', locales: [ru], locale: 'ru' });
+editor.update({ locale: 'en' }); // back to built-in English
+```
+
+Full guide: [`docs/06-i18n.md`](docs/06-i18n.md).
+
 ## Architecture & module map
 
 A guided, four-part deep-dive lives in [`docs/`](docs/README.md):

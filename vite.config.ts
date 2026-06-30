@@ -23,7 +23,34 @@ import webpackStats from 'rollup-plugin-webpack-stats';
  */
 const STATS_FILE = resolve(__dirname, 'statoscope', 'stats.json');
 
+/** The locale dictionaries, built as separate on-demand chunks (never bundled
+ * into the core entry, so the main build ships English-only). */
+const LOCALE_ENTRIES = {
+  ru: resolve(__dirname, 'src/locales/ru.ts'),
+  es: resolve(__dirname, 'src/locales/es.ts'),
+  fr: resolve(__dirname, 'src/locales/fr.ts'),
+  de: resolve(__dirname, 'src/locales/de.ts'),
+  zh: resolve(__dirname, 'src/locales/zh.ts'),
+};
+
 export default defineConfig(({ mode }) => {
+  // Locales: one tiny standalone ESM file per language → dist/locales/<id>.js.
+  if (mode === 'locales') {
+    return {
+      build: {
+        target: 'es2021',
+        outDir: 'dist/locales',
+        emptyOutDir: false,
+        minify: 'esbuild',
+        lib: {
+          entry: LOCALE_ENTRIES,
+          formats: ['es'],
+          fileName: (_format, name) => `${name}.js`,
+        },
+      },
+    };
+  }
+
   const legacy = mode.includes('es2021');
   const analyze = mode === 'analyze';
   const minified = mode.includes('min') || analyze;

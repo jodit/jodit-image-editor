@@ -23,7 +23,7 @@ export const annotateTool: ToolDefinition = {
   icon: ICONS.annotate,
   order: 4,
   defaultTool: 'text',
-  renderPanel({ state, update }) {
+  renderPanel({ state, update, t }) {
     const design = selectDesign(state);
     const selected = findAnnotation(design.annotations, state.selectedAnnotationId);
 
@@ -64,7 +64,7 @@ export const annotateTool: ToolDefinition = {
             onClick: () => patch({ italic: !selected.italic }),
           }),
           slider({
-            label: 'Size',
+            label: t('Size'),
             value: Math.round(selected.fontSize * 100),
             min: 1,
             max: 40,
@@ -72,9 +72,9 @@ export const annotateTool: ToolDefinition = {
           }),
           segmented(
             [
-              { id: 'left', label: 'Left' },
-              { id: 'center', label: 'Center' },
-              { id: 'right', label: 'Right' },
+              { id: 'left', label: t('Left') },
+              { id: 'center', label: t('Center') },
+              { id: 'right', label: t('Right') },
             ],
             selected.align,
             (id) => patch({ align: id as TextAnnotation['align'] }),
@@ -82,7 +82,7 @@ export const annotateTool: ToolDefinition = {
           button({
             variant: 'icon',
             icon: ICONS.reset,
-            title: 'Delete',
+            title: t('Delete'),
             onClick: () =>
               update({
                 design: { annotations: removeAnnotation(design.annotations, selected.id) },
@@ -95,7 +95,7 @@ export const annotateTool: ToolDefinition = {
     return h('div', { style: { display: 'contents' } }, [
       editor,
       h('div', { class: 'jie-toolrow' }, [
-        button({ label: 'Text', icon: ICONS.text, active: true, onClick: addText }),
+        button({ label: t('Text'), icon: ICONS.text, active: true, onClick: addText }),
       ]),
     ]);
   },

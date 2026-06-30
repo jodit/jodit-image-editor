@@ -1,0 +1,53 @@
+import type { Locale } from '../core/i18n/i18n';
+
+/** French locale (`@jodit/image-editor/locales/fr`). */
+const fr: Locale = {
+  id: 'fr',
+  name: 'Français',
+  messages: {
+    Save: 'Enregistrer',
+    'Zoom out': 'Dézoomer',
+    'Zoom in': 'Zoomer',
+    Reset: 'Réinitialiser',
+    Undo: 'Annuler',
+    Redo: 'Rétablir',
+    Adjust: 'Ajuster',
+    Finetune: 'Réglages',
+    Filters: 'Filtres',
+    Watermark: 'Filigrane',
+    Annotate: 'Annoter',
+    Resize: 'Redimensionner',
+    Crop: 'Recadrer',
+    Rotate: 'Pivoter',
+    'Flip X': 'Retourner X',
+    'Flip Y': 'Retourner Y',
+    Brightness: 'Luminosité',
+    Contrast: 'Contraste',
+    Saturation: 'Saturation',
+    Blur: 'Flou',
+    Warmth: 'Chaleur',
+    Original: 'Original',
+    Invert: 'Inverser',
+    'Black & White': 'Noir et blanc',
+    Sepia: 'Sépia',
+    Solarize: 'Solariser',
+    Width: 'Largeur',
+    Height: 'Hauteur',
+    px: 'px',
+    'Aspect ratio locked': 'Proportions verrouillées',
+    'Aspect ratio unlocked': 'Proportions libres',
+    'Reset size': 'Réinitialiser la taille',
+    Size: 'Taille',
+    Left: 'Gauche',
+    Center: 'Centre',
+    Right: 'Droite',
+    Delete: 'Supprimer',
+    Text: 'Texte',
+    'Watermark text': 'Texte du filigrane',
+    'Add watermark': 'Ajouter un filigrane',
+    'Reset all changes? You can still undo afterwards.':
+      'Réinitialiser toutes les modifications ? Vous pourrez les annuler ensuite.',
+  },
+};
+
+export default fr;

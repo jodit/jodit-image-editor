@@ -5,6 +5,7 @@ import { ICONS } from './icons';
 import type { CropHandle } from '../core/geometry/crop-interaction';
 import type { EditorPatch, EditorState } from '../core/state/types';
 import type { ToolDefinition } from '../plugins/types';
+import type { Translator } from '../core/i18n/i18n';
 import {
   selectCanRedo,
   selectCanUndo,
@@ -24,6 +25,8 @@ import {
 export interface AppContext {
   update: (patch: EditorPatch) => void;
   tools: ToolDefinition[];
+  /** Translate a (English source) string for the active locale. */
+  t: Translator;
   onSave: () => void;
   /** Reset all edits — the editor asks for confirmation before applying. */
   onReset: () => void;
@@ -42,9 +45,10 @@ function renderTopBar(state: EditorState, ctx: AppContext): VNode {
   const fit = selectViewportFit(state);
   const percent = fit ? Math.round(fit.scale * 100) : Math.round(state.zoom * 100);
 
+  const t = ctx.t;
   return h('header', { class: 'jie-topbar' }, [
     button({
-      label: 'Save',
+      label: t('Save'),
       variant: 'primary',
       onClick: () => ctx.onSave(),
       disabled: !state.source,
@@ -56,14 +60,14 @@ function renderTopBar(state: EditorState, ctx: AppContext): VNode {
         button({
           variant: 'icon',
           icon: ICONS.minus,
-          title: 'Zoom out',
+          title: t('Zoom out'),
           onClick: () => zoom(ctx, state, 1 / 1.2),
         }),
         h('span', {}, `${percent}%`),
         button({
           variant: 'icon',
           icon: ICONS.plus,
-          title: 'Zoom in',
+          title: t('Zoom in'),
           onClick: () => zoom(ctx, state, 1.2),
         }),
       ]),
@@ -72,21 +76,21 @@ function renderTopBar(state: EditorState, ctx: AppContext): VNode {
       button({
         variant: 'icon',
         icon: ICONS.reset,
-        title: 'Reset',
+        title: t('Reset'),
         disabled: !selectIsDirty(state),
         onClick: () => ctx.onReset(),
       }),
       button({
         variant: 'icon',
         icon: ICONS.undo,
-        title: 'Undo',
+        title: t('Undo'),
         disabled: !selectCanUndo(state),
         onClick: () => ctx.update({ history: { step: -1 } }),
       }),
       button({
         variant: 'icon',
         icon: ICONS.redo,
-        title: 'Redo',
+        title: t('Redo'),
         disabled: !selectCanRedo(state),
         onClick: () => ctx.update({ history: { step: 1 } }),
       }),
@@ -110,15 +114,15 @@ function renderRail(state: EditorState, ctx: AppContext): VNode {
             click: () => ctx.update({ activeTab: tool.id, activeTool: tool.defaultTool ?? null }),
           },
         },
-        [icon(tool.icon), h('span', {}, tool.label)],
+        [icon(tool.icon), h('span', {}, ctx.t(tool.label))],
       ),
     ),
   );
 }
 
 function renderStage(state: EditorState, ctx: AppContext): VNode {
-  const active = ctx.tools.find((t) => t.id === state.activeTab) ?? ctx.tools[0];
-  const panel = active?.renderPanel({ state, update: ctx.update }) ?? null;
+  const active = ctx.tools.find((tool) => tool.id === state.activeTab) ?? ctx.tools[0];
+  const panel = active?.renderPanel({ state, update: ctx.update, t: ctx.t }) ?? null;
 
   return h('div', { class: 'jie-stage' }, [
     h('div', { class: 'jie-canvas-wrap', 'data-jie-canvas-wrap': '' }, [

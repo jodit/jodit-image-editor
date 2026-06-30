@@ -34,7 +34,8 @@
         margin-bottom: 16px;
       }
       .toolbar button,
-      .toolbar label {
+      .toolbar label,
+      .toolbar select {
         padding: 8px 14px;
         font: inherit;
         font-size: 14px;
@@ -45,6 +46,17 @@
       }
       .toolbar button:hover {
         background: #f3f4ff;
+      }
+      .toolbar .lang-picker {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .toolbar .lang-picker select {
+        border: 0;
+        padding: 2px;
+        background: transparent;
+        cursor: pointer;
       }
       #editor {
         height: min(78vh, 820px);
@@ -83,6 +95,10 @@
       <button id="undo">Undo</button>
       <button id="redo">Redo</button>
       <button id="theme">Toggle theme</button>
+      <label class="lang-picker"
+        >🌐
+        <select id="lang" aria-label="Language"></select
+      ></label>
       <button id="export">Export → blob</button>
     </div>
 

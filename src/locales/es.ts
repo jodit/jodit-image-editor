@@ -1,0 +1,53 @@
+import type { Locale } from '../core/i18n/i18n';
+
+/** Spanish locale (`@jodit/image-editor/locales/es`). */
+const es: Locale = {
+  id: 'es',
+  name: 'Español',
+  messages: {
+    Save: 'Guardar',
+    'Zoom out': 'Alejar',
+    'Zoom in': 'Acercar',
+    Reset: 'Restablecer',
+    Undo: 'Deshacer',
+    Redo: 'Rehacer',
+    Adjust: 'Ajustar',
+    Finetune: 'Ajuste fino',
+    Filters: 'Filtros',
+    Watermark: 'Marca de agua',
+    Annotate: 'Anotar',
+    Resize: 'Redimensionar',
+    Crop: 'Recortar',
+    Rotate: 'Rotar',
+    'Flip X': 'Voltear X',
+    'Flip Y': 'Voltear Y',
+    Brightness: 'Brillo',
+    Contrast: 'Contraste',
+    Saturation: 'Saturación',
+    Blur: 'Desenfoque',
+    Warmth: 'Calidez',
+    Original: 'Original',
+    Invert: 'Invertir',
+    'Black & White': 'Blanco y negro',
+    Sepia: 'Sepia',
+    Solarize: 'Solarizar',
+    Width: 'Ancho',
+    Height: 'Alto',
+    px: 'px',
+    'Aspect ratio locked': 'Proporción bloqueada',
+    'Aspect ratio unlocked': 'Proporción libre',
+    'Reset size': 'Restablecer tamaño',
+    Size: 'Tamaño',
+    Left: 'Izquierda',
+    Center: 'Centro',
+    Right: 'Derecha',
+    Delete: 'Eliminar',
+    Text: 'Texto',
+    'Watermark text': 'Texto de marca de agua',
+    'Add watermark': 'Añadir marca de agua',
+    'Reset all changes? You can still undo afterwards.':
+      '¿Restablecer todos los cambios? Podrás deshacerlo después.',
+  },
+};
+
+export default es;

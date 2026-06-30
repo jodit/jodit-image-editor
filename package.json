@@ -28,6 +28,11 @@
       "import": "./dist/jodit-image-editor.js",
       "require": "./dist/jodit-image-editor.es2021.js",
       "default": "./dist/jodit-image-editor.js"
+    },
+    "./locales/*": {
+      "types": "./dist/locales/*.d.ts",
+      "import": "./dist/locales/*.js",
+      "default": "./dist/locales/*.js"
     }
   },
   "files": [
@@ -37,7 +42,7 @@
   ],
   "scripts": {
     "start": "vite serve demo",
-    "build": "rimraf dist && vite build && vite build --mode min && vite build --mode es2021 && vite build --mode es2021-min",
+    "build": "rimraf dist && vite build && vite build --mode min && vite build --mode es2021 && vite build --mode es2021-min && vite build --mode locales && node scripts/build-locale-types.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

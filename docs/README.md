@@ -26,6 +26,8 @@ Blob ──decode──▶ RasterImage ──pipeline(design)──▶ RasterIma
    transforms, filters, the pure pipeline, and the thin canvas boundary.
 5. [UI components & design system](./05-ui-components.md) — primitives, icons,
    design tokens/theming, the layout shell, and building a custom tool panel.
+6. [Internationalisation (i18n)](./06-i18n.md) — gettext-style translation, the
+   English-only core, the five shipped locales, and writing your own.
 
 ## How the layers map to the code
 

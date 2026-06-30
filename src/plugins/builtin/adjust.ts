@@ -14,29 +14,29 @@ export const adjustTool: ToolDefinition = {
   icon: ICONS.adjust,
   order: 0,
   defaultTool: 'crop',
-  renderPanel({ state, update }) {
+  renderPanel({ state, update, t }) {
     const design = selectDesign(state);
     const cropping = selectIsCropping(state);
 
     return h('div', { class: 'jie-toolrow' }, [
       button({
-        label: 'Crop',
+        label: t('Crop'),
         icon: ICONS.crop,
         active: cropping,
         onClick: () => update({ activeTab: 'adjust', activeTool: cropping ? null : 'crop' }),
       }),
       button({
-        label: 'Rotate',
+        label: t('Rotate'),
         icon: ICONS.rotate,
         onClick: () => update({ design: { rotate: design.rotate + 90 } }),
       }),
       button({
-        label: 'Flip X',
+        label: t('Flip X'),
         icon: ICONS.flipX,
         onClick: () => update({ design: { flip: { horizontal: !design.flip.horizontal } } }),
       }),
       button({
-        label: 'Flip Y',
+        label: t('Flip Y'),
         icon: ICONS.flipY,
         onClick: () => update({ design: { flip: { vertical: !design.flip.vertical } } }),
       }),

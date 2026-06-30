@@ -14,7 +14,7 @@ export const filtersTool: ToolDefinition = {
   label: 'Filters',
   icon: ICONS.filters,
   order: 2,
-  renderPanel({ state, update }) {
+  renderPanel({ state, update, t }) {
     const active = selectDesign(state).filter;
 
     return h(
@@ -34,7 +34,7 @@ export const filtersTool: ToolDefinition = {
             // The editor paints a live filtered preview onto this canvas after
             // render (see ImageEditor#paintFilterThumbs).
             h('canvas', { class: 'jie-thumb__swatch', 'data-jie-filter-thumb': f.id }),
-            h('span', {}, f.label),
+            h('span', {}, t(f.label)),
           ],
         ),
       ),

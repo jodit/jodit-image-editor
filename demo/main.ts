@@ -1,4 +1,9 @@
 import { ImageEditor } from '../src/index';
+import ru from '../src/locales/ru';
+import es from '../src/locales/es';
+import fr from '../src/locales/fr';
+import de from '../src/locales/de';
+import zh from '../src/locales/zh';
 import sampleUrl from './assets/sample.jpg';
 
 /**
@@ -6,8 +11,11 @@ import sampleUrl from './assets/sample.jpg';
  * through the documented public surface: `update(patch)` for navigation/undo and
  * `toBlob()` for export. Undo/redo are history-navigation patches, not methods.
  */
+const locales = [ru, es, fr, de, zh];
+
 const editor = new ImageEditor({
   container: '#editor',
+  locales,
   onSave: (blob) => showResult(blob),
 });
 
@@ -34,6 +42,17 @@ $('#redo').addEventListener('click', () => editor.update({ history: { step: 1 } 
 $('#theme').addEventListener('click', () =>
   editor.update({ theme: editor.state.theme === 'dark' ? 'light' : 'dark' }),
 );
+
+// Language picker — populate from the registered locales (+ built-in English).
+const lang = $<HTMLSelectElement>('#lang');
+for (const { id, name } of [{ id: 'en', name: 'English' }, ...locales]) {
+  const option = document.createElement('option');
+  option.value = id;
+  option.textContent = name;
+  lang.appendChild(option);
+}
+lang.value = editor.state.locale; // reflect the editor's current language
+lang.addEventListener('change', () => editor.update({ locale: lang.value }));
 
 $('#export').addEventListener('click', () => {
   void editor.toBlob({ type: 'image/png' }).then(showResult);

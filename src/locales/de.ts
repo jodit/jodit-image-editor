@@ -1,0 +1,53 @@
+import type { Locale } from '../core/i18n/i18n';
+
+/** German locale (`@jodit/image-editor/locales/de`). */
+const de: Locale = {
+  id: 'de',
+  name: 'Deutsch',
+  messages: {
+    Save: 'Speichern',
+    'Zoom out': 'Verkleinern',
+    'Zoom in': 'Vergrößern',
+    Reset: 'Zurücksetzen',
+    Undo: 'Rückgängig',
+    Redo: 'Wiederholen',
+    Adjust: 'Anpassen',
+    Finetune: 'Feinabstimmung',
+    Filters: 'Filter',
+    Watermark: 'Wasserzeichen',
+    Annotate: 'Anmerken',
+    Resize: 'Größe ändern',
+    Crop: 'Zuschneiden',
+    Rotate: 'Drehen',
+    'Flip X': 'X spiegeln',
+    'Flip Y': 'Y spiegeln',
+    Brightness: 'Helligkeit',
+    Contrast: 'Kontrast',
+    Saturation: 'Sättigung',
+    Blur: 'Unschärfe',
+    Warmth: 'Wärme',
+    Original: 'Original',
+    Invert: 'Invertieren',
+    'Black & White': 'Schwarzweiß',
+    Sepia: 'Sepia',
+    Solarize: 'Solarisieren',
+    Width: 'Breite',
+    Height: 'Höhe',
+    px: 'px',
+    'Aspect ratio locked': 'Seitenverhältnis gesperrt',
+    'Aspect ratio unlocked': 'Seitenverhältnis frei',
+    'Reset size': 'Größe zurücksetzen',
+    Size: 'Größe',
+    Left: 'Links',
+    Center: 'Mitte',
+    Right: 'Rechts',
+    Delete: 'Löschen',
+    Text: 'Text',
+    'Watermark text': 'Wasserzeichentext',
+    'Add watermark': 'Wasserzeichen hinzufügen',
+    'Reset all changes? You can still undo afterwards.':
+      'Alle Änderungen zurücksetzen? Sie können es danach rückgängig machen.',
+  },
+};
+
+export default de;

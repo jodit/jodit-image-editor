@@ -16,7 +16,7 @@ export const watermarkTool: ToolDefinition = {
   label: 'Watermark',
   icon: ICONS.watermark,
   order: 3,
-  renderPanel({ state, update }) {
+  renderPanel({ state, update, t }) {
     const design = selectDesign(state);
 
     const stamp = (text: string) => {
@@ -42,10 +42,10 @@ export const watermarkTool: ToolDefinition = {
         type: 'text',
         value: '© Jodit',
         id: 'jie-wm-input',
-        placeholder: 'Watermark text',
+        placeholder: t('Watermark text'),
       }),
       button({
-        label: 'Add watermark',
+        label: t('Add watermark'),
         icon: ICONS.watermark,
         variant: 'primary',
         onClick: () => {

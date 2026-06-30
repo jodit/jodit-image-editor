@@ -17,6 +17,8 @@ import { resize as resizeRaster } from '../core/operations/transform';
 import type { RasterImage } from '../core/raster/raster';
 import { applyFilter, registerFilter } from '../core/filters/filters';
 import { toImageData } from '../image/image-data';
+import { LocaleRegistry } from '../core/i18n/registry';
+import type { Locale, Translator } from '../core/i18n/i18n';
 
 import { Renderer } from '../render/vdom/render';
 import { DomHost } from '../render/vdom/host-dom';
@@ -46,6 +48,10 @@ export interface ImageEditorProps {
   plugins?: EditorPlugin[];
   /** Replace the built-in tool set entirely. */
   tools?: ReturnType<typeof createBuiltinTools>;
+  /** Active locale id; `'en'` (default) needs no dictionary. */
+  locale?: string;
+  /** Dictionaries to register at construction (import from `@jodit/image-editor/locales/*`). */
+  locales?: Locale[];
   /** Notification cadence; defaults to a requestAnimationFrame scheduler. */
   scheduler?: Scheduler;
   /** Custom image processor (codec/canvas). Defaults to the canvas codec. */
@@ -72,6 +78,7 @@ export class ImageEditor {
   private readonly container: HTMLElement;
   private readonly renderer: Renderer<Node>;
   private readonly registry = new ToolRegistry();
+  private readonly locales = new LocaleRegistry();
   private readonly processor: ImageProcessor;
   private readonly previewMaxSize: number;
   private readonly onSaveCb: ImageEditorProps['onSave'];
@@ -104,9 +111,15 @@ export class ImageEditor {
       props.confirm ??
       ((message) => (typeof window !== 'undefined' ? window.confirm(message) : true));
 
+    for (const locale of props.locales ?? []) this.locales.register(locale);
+
     this.store = new Store({
       scheduler: props.scheduler ?? createRafScheduler(),
-      initialState: { ...createInitialState(), ...props.state },
+      initialState: {
+        ...createInitialState(),
+        ...props.state,
+        ...(props.locale ? { locale: props.locale } : {}),
+      },
     });
 
     for (const tool of props.tools ?? createBuiltinTools()) this.registry.register(tool);
@@ -194,15 +207,22 @@ export class ImageEditor {
     return {
       registerTool: (tool) => this.registry.register(tool),
       registerFilter: (def) => registerFilter(def),
+      registerLocale: (locale) => this.locales.register(locale),
       getState: () => this.store.getState(),
       update: (patch) => this.store.update(patch),
     };
+  }
+
+  /** Translator for the currently active locale. */
+  private translator(): Translator {
+    return this.locales.translator(this.store.getState().locale);
   }
 
   private appContext(): AppContext {
     return {
       update: (patch) => this.store.update(patch),
       tools: this.registry.list(),
+      t: this.translator(),
       onSave: () => void this.handleSave(),
       onReset: () => this.handleReset(),
       beginCropDrag: (handle, event) => this.beginCropDrag(handle, event),
@@ -212,7 +232,7 @@ export class ImageEditor {
   /** Reset every edit, behind a confirmation prompt. */
   private handleReset(): void {
     if (!selectIsDirty(this.store.getState())) return;
-    if (this.confirm('Reset all changes? You can still undo afterwards.')) {
+    if (this.confirm(this.translator()('Reset all changes? You can still undo afterwards.'))) {
       this.store.update({ resetDesign: true });
     }
   }

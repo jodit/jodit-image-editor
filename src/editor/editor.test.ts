@@ -144,6 +144,27 @@ describe('ImageEditor', () => {
     expect(() => editor.update({ activeTab: 'resize' })).not.toThrow();
   });
 
+  it('translates the UI for the active locale and switches via update()', () => {
+    const ru = {
+      id: 'ru',
+      name: 'Русский',
+      messages: { Save: 'Сохранить' },
+    };
+    const editor = makeEditor({ locales: [ru], locale: 'ru' });
+    const saveLabel = () =>
+      document.querySelector('.jie-topbar .jie-btn--primary span')?.textContent;
+    expect(saveLabel()).toBe('Сохранить');
+    editor.update({ locale: 'en' }); // back to English (identity)
+    expect(saveLabel()).toBe('Save');
+    editor.destroy();
+  });
+
+  it('defaults to English when no locale is registered', () => {
+    const editor = makeEditor();
+    expect(document.querySelector('.jie-topbar .jie-btn--primary span')?.textContent).toBe('Save');
+    editor.destroy();
+  });
+
   it('init() is a thin factory for new ImageEditor', () => {
     const container = document.createElement('div');
     document.body.appendChild(container);

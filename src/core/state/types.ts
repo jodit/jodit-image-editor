@@ -136,6 +136,8 @@ export interface EditorState {
   history: HistoryState<Design>;
   selectedAnnotationId: string | null;
   theme: ThemeName;
+  /** Active locale id. `'en'` (default) needs no dictionary. */
+  locale: string;
   /** Measured size of the preview area, in CSS pixels. Ephemeral layout state. */
   viewport: Size | null;
 }
@@ -150,6 +152,7 @@ export interface EditorPatch {
   activeTool?: string | null;
   zoom?: number;
   theme?: ThemeName;
+  locale?: string;
   selectedAnnotationId?: string | null;
   status?: EditorStatus;
   error?: string | null;

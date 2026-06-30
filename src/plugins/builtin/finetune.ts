@@ -36,7 +36,7 @@ export const finetuneTool: ToolDefinition = {
   icon: ICONS.finetune,
   order: 1,
   defaultTool: 'brightness',
-  renderPanel({ state, update }) {
+  renderPanel({ state, update, t }) {
     const field = activeField(state.activeTool);
     const finetune = selectDesign(state).finetune;
     const value = finetune[field.id];
@@ -49,7 +49,7 @@ export const finetuneTool: ToolDefinition = {
 
     return h('div', { class: 'jie-panel-stack', style: { display: 'contents' } }, [
       slider({
-        label: field.label,
+        label: t(field.label),
         value,
         min: field.min,
         max: field.max,
@@ -57,7 +57,7 @@ export const finetuneTool: ToolDefinition = {
         onInput: (v) => setValue(v, false),
       }),
       segmented(
-        FIELDS.map((f) => ({ id: f.id, label: f.label, icon: f.icon })),
+        FIELDS.map((f) => ({ id: f.id, label: t(f.label), icon: f.icon })),
         field.id,
         (id) => update({ activeTab: 'finetune', activeTool: id }),
       ),

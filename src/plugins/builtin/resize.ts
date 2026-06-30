@@ -15,7 +15,7 @@ export const resizeTool: ToolDefinition = {
   label: 'Resize',
   icon: ICONS.resize,
   order: 5,
-  renderPanel({ state, update }) {
+  renderPanel({ state, update, t }) {
     const size = selectOutputSize(state);
     if (!size) return null;
 
@@ -25,27 +25,27 @@ export const resizeTool: ToolDefinition = {
 
     return h('div', { class: 'jie-fieldrow' }, [
       numberField({
-        label: 'Width',
+        label: t('Width'),
         value: size.width,
-        suffix: 'px',
+        suffix: t('px'),
         onChange: (w) => apply({ width: w }),
       }),
       button({
         variant: 'icon',
         icon: locked ? ICONS.lock : ICONS.unlock,
-        title: locked ? 'Aspect ratio locked' : 'Aspect ratio unlocked',
+        title: locked ? t('Aspect ratio locked') : t('Aspect ratio unlocked'),
         onClick: () => update({ activeTab: 'resize', activeTool: locked ? 'unlocked' : 'locked' }),
       }),
       numberField({
-        label: 'Height',
+        label: t('Height'),
         value: size.height,
-        suffix: 'px',
+        suffix: t('px'),
         onChange: (hgt) => apply({ height: hgt }),
       }),
       button({
         variant: 'icon',
         icon: ICONS.reset,
-        title: 'Reset size',
+        title: t('Reset size'),
         onClick: () => update({ design: { resize: null } }),
       }),
     ]);

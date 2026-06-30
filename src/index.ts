@@ -79,6 +79,11 @@ export { DomHost } from './render/vdom/host-dom';
 export { MemoryHost } from './render/vdom/memory-host';
 export type { Host } from './render/vdom/host';
 
+// --- i18n core (English-only; locales ship separately) --------------------
+export { createTranslator, interpolate } from './core/i18n/i18n';
+export type { Locale, Messages, TranslationParams, Translator } from './core/i18n/i18n';
+export { LocaleRegistry } from './core/i18n/registry';
+
 // --- extension API --------------------------------------------------------
 export { ToolRegistry } from './plugins/registry';
 export { createBuiltinTools } from './plugins/builtin';

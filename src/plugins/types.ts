@@ -1,6 +1,7 @@
 import type { VNode } from '../render/vdom/vnode';
 import type { EditorPatch, EditorState } from '../core/state/types';
 import type { FilterDefinition } from '../core/filters/filters';
+import type { Locale, Translator } from '../core/i18n/i18n';
 
 /**
  * The external extension contract.
@@ -11,10 +12,12 @@ import type { FilterDefinition } from '../core/filters/filters';
  * dispatch patches, keeping the same `view = f(state)` discipline.
  */
 
-/** What a tool panel receives each render: current state + the dispatcher. */
+/** What a tool panel receives each render: state, dispatcher, and translator. */
 export interface ToolContext {
   state: EditorState;
   update: (patch: EditorPatch) => void;
+  /** Translate a (English source) string for the active locale. */
+  t: Translator;
 }
 
 /** A tab in the left rail plus the contextual panel shown when it is active. */
@@ -36,6 +39,7 @@ export interface ToolDefinition {
 export interface EditorApi {
   registerTool: (tool: ToolDefinition) => () => void;
   registerFilter: (def: FilterDefinition) => () => void;
+  registerLocale: (locale: Locale) => () => void;
   getState: () => EditorState;
   update: (patch: EditorPatch) => void;
 }
