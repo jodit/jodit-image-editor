@@ -393,10 +393,70 @@
   font-weight: 600;
 }
 
+/*
+ * Fully custom range so it looks identical across evergreen browsers (the
+ * native `accent-color` only themes the colour, not the track/thumb shapes).
+ * The filled portion is driven by `--jie-range-fill` (set per render by the
+ * slider component) on WebKit, and by the native `::-moz-range-progress` on
+ * Firefox.
+ */
 .jie-range {
+  --jie-range-fill: 50%;
+  -webkit-appearance: none;
+  appearance: none;
   flex: 1;
   min-width: 0;
-  accent-color: var(--jie-accent);
+  height: 16px; /* hit area */
+  background: transparent;
+  cursor: pointer;
+
+  &::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(
+      to right,
+      var(--jie-accent) var(--jie-range-fill),
+      var(--jie-border) var(--jie-range-fill)
+    );
+  }
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -6px; /* centre the 16px thumb on the 4px track */
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--jie-accent);
+    border: 2px solid var(--jie-bg);
+    box-shadow: 0 1px 3px rgba(20, 24, 40, 0.25);
+  }
+  &::-moz-range-track {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--jie-border);
+  }
+  &::-moz-range-progress {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--jie-accent);
+  }
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--jie-accent);
+    border: 2px solid var(--jie-bg);
+    box-shadow: 0 1px 3px rgba(20, 24, 40, 0.25);
+  }
+  &:focus-visible {
+    outline: none;
+  }
+  &:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px var(--jie-accent-soft);
+  }
+  &:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 4px var(--jie-accent-soft);
+  }
 }
 
 /* filter thumbnails */

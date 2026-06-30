@@ -84,7 +84,7 @@ export const annotateTool: ToolDefinition = {
           ),
           button({
             variant: 'icon',
-            icon: ICONS.reset,
+            icon: ICONS.trash,
             title: t('Delete'),
             onClick: () =>
               update({

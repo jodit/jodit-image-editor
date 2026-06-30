@@ -68,6 +68,11 @@ export function slider(props: SliderProps): VNode {
   };
   if (onStart) on.pointerdown = () => onStart();
 
+  // Drives the filled portion of the track on WebKit (Firefox uses the native
+  // ::-moz-range-progress); see `.jie-range` in editor.css.
+  const span = props.max - props.min || 1;
+  const fill = Math.min(100, Math.max(0, ((props.value - props.min) / span) * 100));
+
   return h('div', { class: 'jie-slider' }, [
     h('span', { class: 'jie-slider__label' }, props.label),
     h('input', {
@@ -77,6 +82,7 @@ export function slider(props: SliderProps): VNode {
       max: String(props.max),
       step: String(props.step ?? 1),
       value: String(props.value),
+      style: { '--jie-range-fill': `${fill}%` },
       on,
     }),
     h('span', { class: 'jie-slider__value' }, String(Math.round(props.value))),
