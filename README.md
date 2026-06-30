@@ -33,6 +33,22 @@ update(patch) ─▶ reducer ─▶ Store ─scheduler(batch)─▶ render(state
 npm install @jodit/image-editor
 ```
 
+Or use it straight from a CDN — no build step (CSS is injected from JS):
+
+```html
+<div id="editor" style="height: 600px"></div>
+<script type="module">
+  import { ImageEditor } from 'https://cdn.jsdelivr.net/npm/@jodit/image-editor/+esm';
+  const editor = new ImageEditor({ container: '#editor' });
+  document
+    .querySelector('input[type=file]')
+    .addEventListener('change', (e) => editor.fromBlob(e.target.files[0]));
+</script>
+```
+
+New here? See **[docs/getting-started.md](docs/getting-started.md)** for a
+copy-paste demo, CDN/jsDelivr options and the full API at a glance.
+
 ## Quick start
 
 ```ts

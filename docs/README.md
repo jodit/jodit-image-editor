@@ -16,6 +16,9 @@ Blob ──decode──▶ RasterImage ──pipeline(design)──▶ RasterIma
 
 ## Contents
 
+**Start here:** [Getting started](./getting-started.md) — install / CDN (jsDelivr),
+a copy-paste demo, and the whole API at a glance.
+
 1. [State & reducer](./01-state-and-reducer.md) — `EditorState`, `Design`, and
    why undo/redo is part of state rather than a method.
 2. [Store & scheduler](./02-store-and-scheduler.md) — reactivity and how a burst
