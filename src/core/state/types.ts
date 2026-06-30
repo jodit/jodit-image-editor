@@ -183,6 +183,8 @@ export interface EditorPatch {
    * moves relative (`-1` = undo, `+1` = redo). Either is clamped to range.
    */
   history?: { index: number } | { step: number };
-  /** Reset the *design* (not UI state) back to identity, recorded in history. */
+  /** Reset the *design* back to identity as a new, undoable history step. */
   resetDesign?: boolean;
+  /** Clear history entirely to a single identity entry (used when loading a new image). */
+  resetHistory?: boolean;
 }

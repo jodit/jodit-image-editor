@@ -27,7 +27,7 @@ export const filtersTool: ToolDefinition = {
             key: f.id,
             class: 'jie-thumb',
             type: 'button',
-            'aria-pressed': f.id === active,
+            'aria-pressed': String(f.id === active),
             on: { click: () => update({ design: { filter: f.id } }) },
           },
           [

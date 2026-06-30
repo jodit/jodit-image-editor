@@ -177,7 +177,7 @@ export class ImageEditor {
           name: blob instanceof File ? blob.name : null,
           mimeType: blob.type || 'image/png',
         },
-        resetDesign: true,
+        resetHistory: true, // a freshly loaded image starts with a clean, empty history
         status: 'ready',
       });
     } catch (error) {

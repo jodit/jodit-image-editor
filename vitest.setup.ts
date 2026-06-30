@@ -9,6 +9,13 @@
  */
 import { afterEach, vi } from 'vitest';
 
+// jsdom has no 2D context and logs a noisy "not implemented" error whenever
+// something calls `getContext`. Our editor guards on a null context (it uses a
+// fake processor in tests), so make `getContext` return null quietly.
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = () => null;
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
 });

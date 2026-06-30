@@ -98,6 +98,17 @@ describe('reduce', () => {
     expect(s.minResizeSize).toBe(1);
   });
 
+  it('resetHistory clears the timeline to a single identity entry', () => {
+    let s = createInitialState();
+    s = reduce(s, { design: { rotate: 90 } });
+    s = reduce(s, { design: { filter: 'sepia' } });
+    expect(s.history.entries.length).toBe(3);
+    s = reduce(s, { resetHistory: true });
+    expect(s.history.entries).toHaveLength(1);
+    expect(s.history.index).toBe(0);
+    expect(present(s.history).rotate).toBe(0);
+  });
+
   it('sanitises invalid zoom', () => {
     expect(reduce(createInitialState(), { zoom: -5 }).zoom).toBe(1);
     expect(reduce(createInitialState(), { zoom: 1000 }).zoom).toBe(64);

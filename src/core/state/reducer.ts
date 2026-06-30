@@ -33,6 +33,9 @@ export function reduce(state: EditorState, patch: EditorPatch): EditorState {
   }
 
   // --- design edits (recorded in history) ----------------------------------
+  if (patch.resetHistory) {
+    next = set(next, { history: { entries: [createIdentityDesign()], index: 0 } });
+  }
   if (patch.resetDesign) {
     next = set(next, { history: commit(next.history, createIdentityDesign()) });
   }

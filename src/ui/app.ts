@@ -112,7 +112,7 @@ function renderRail(state: EditorState, ctx: AppContext): VNode {
           key: tool.id,
           class: 'jie-tab',
           type: 'button',
-          'aria-selected': state.activeTab === tool.id,
+          'aria-selected': String(state.activeTab === tool.id),
           on: {
             click: () => ctx.update({ activeTab: tool.id, activeTool: tool.defaultTool ?? null }),
           },
