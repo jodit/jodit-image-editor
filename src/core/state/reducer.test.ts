@@ -98,6 +98,18 @@ describe('reduce', () => {
     expect(s.minResizeSize).toBe(1);
   });
 
+  it('committing after an undo truncates the redo branch', () => {
+    let s = createInitialState();
+    s = reduce(s, { design: { rotate: 90 } }); // [id, rot]
+    s = reduce(s, { design: { filter: 'sepia' } }); // [id, rot, rot+sepia] @2
+    s = reduce(s, { history: { step: -1 } }); // back to rot @1
+    s = reduce(s, { design: { flip: { horizontal: true } } }); // new branch → drops sepia
+    expect(s.history.entries).toHaveLength(3);
+    expect(s.history.index).toBe(2); // can no longer redo into the old branch
+    expect(present(s.history).filter).toBe('original'); // the sepia future is gone
+    expect(present(s.history).flip.horizontal).toBe(true);
+  });
+
   it('resetHistory clears the timeline to a single identity entry', () => {
     let s = createInitialState();
     s = reduce(s, { design: { rotate: 90 } });
