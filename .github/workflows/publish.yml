@@ -66,3 +66,16 @@ jobs:
 
       - name: Publish to npm
         run: npm publish
+
+      # Rebuild & redeploy the xdsoft.net site so the /jodit/image-editor/
+      # section (its docs are read straight from this package) picks up the
+      # new release. The home CI listens for repository_dispatch type "opened".
+      # PAT_USERNAME / PAT_TOKEN are repo secrets (a PAT with repo scope).
+      - name: Trigger jodit-pro-home site rebuild
+        run: |
+          curl -XPOST \
+            -u "${{ secrets.PAT_USERNAME }}:${{ secrets.PAT_TOKEN }}" \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/xdan/jodit-pro-home/dispatches \
+            --data '{"event_type": "opened"}'
