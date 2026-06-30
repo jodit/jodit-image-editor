@@ -26,8 +26,7 @@
   },
   "homepage": "https://xdsoft.net/jodit/",
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "main": "./dist/jodit-image-editor.es2021.js",
   "module": "./dist/jodit-image-editor.js",
