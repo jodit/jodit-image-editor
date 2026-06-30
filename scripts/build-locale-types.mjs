@@ -22,7 +22,7 @@ export default locale;
 `;
 
 const ids = readdirSync(srcDir)
-  .filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts'))
+  .filter((f) => f.endsWith('.ts') && !/\.(d|test|spec)\.ts$/.test(f))
   .map((f) => f.replace(/\.ts$/, ''));
 
 for (const id of ids) {

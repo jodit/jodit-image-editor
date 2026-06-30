@@ -17,6 +17,18 @@
     "reactive"
   ],
   "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jodit/jodit-image-editor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jodit/jodit-image-editor/issues"
+  },
+  "homepage": "https://xdsoft.net/jodit/",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "main": "./dist/jodit-image-editor.es2021.js",
   "module": "./dist/jodit-image-editor.js",
   "types": "./dist/index.d.ts",
@@ -41,6 +53,9 @@
     "LICENSE"
   ],
   "scripts": {
+    "newversion": "npm version patch --no-git-tag-version && npm run newversiongit",
+    "git": "git add --all && git commit -m \"New version $npm_package_version. Read more https://github.com/jodit/jodit-image-editor/releases/tag/$npm_package_version\" && git tag $npm_package_version",
+    "newversiongit": "npm run git && git push --tags origin HEAD:main",
     "start": "vite serve demo",
     "build": "rimraf dist && vite build && vite build --mode min && vite build --mode es2021 && vite build --mode es2021-min && vite build --mode locales && node scripts/build-locale-types.mjs",
     "test": "vitest run",
