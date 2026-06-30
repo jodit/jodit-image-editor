@@ -2,17 +2,19 @@ import { Store } from '../core/store/store';
 import type { Scheduler } from '../core/scheduler/scheduler';
 import { createRafScheduler } from '../core/scheduler/scheduler';
 import { createInitialState } from '../core/state/initial';
-import type { EditorPatch, EditorState } from '../core/state/types';
+import type { DesignPatch, EditorPatch, EditorState } from '../core/state/types';
 import {
+  selectCropAngle,
   selectDesign,
+  selectEffectiveCrop,
   selectIsDirty,
   selectOrientedSize,
   selectPreviewDesign,
   selectViewportFit,
 } from '../core/state/selectors';
-import { selectEffectiveCrop } from '../core/state/selectors';
 import { resizeCrop } from '../core/geometry/crop-interaction';
 import type { CropHandle } from '../core/geometry/crop-interaction';
+import { cropCenter, pointerAngle, resizeRotatedCrop } from '../core/geometry/crop-rotate';
 import { resize as resizeRaster } from '../core/operations/transform';
 import type { RasterImage } from '../core/raster/raster';
 import { applyFilter, registerFilter } from '../core/filters/filters';
@@ -226,6 +228,7 @@ export class ImageEditor {
       onSave: () => void this.handleSave(),
       onReset: () => this.handleReset(),
       beginCropDrag: (handle, event) => this.beginCropDrag(handle, event),
+      beginCropRotate: (event) => this.beginCropRotate(event),
     };
   }
 
@@ -338,16 +341,57 @@ export class ImageEditor {
     const oriented = selectOrientedSize(startState);
     if (!fit || !startCrop || !oriented) return;
 
-    event.preventDefault();
+    const angle = selectCropAngle(startState);
     const startX = event.clientX;
     const startY = event.clientY;
-    let committed = false;
 
-    const onMove = (e: PointerEvent) => {
+    this.runPointerGesture(event, (e) => {
       const dx = (e.clientX - startX) / fit.scale;
       const dy = (e.clientY - startY) / fit.scale;
-      const next = resizeCrop(startCrop, handle, dx, dy, oriented);
-      this.store.update({ design: { crop: next }, commit: !committed });
+      // A tilted frame resizes in its own (rotated) axes; an upright one clamps
+      // to the image bounds as before.
+      return {
+        crop:
+          angle !== 0
+            ? resizeRotatedCrop(startCrop, angle, handle, dx, dy)
+            : resizeCrop(startCrop, handle, dx, dy, oriented),
+      };
+    });
+  }
+
+  private beginCropRotate(event: PointerEvent): void {
+    const startState = this.store.getState();
+    const fit = selectViewportFit(startState);
+    const crop = selectEffectiveCrop(startState);
+    const wrap = this.observedWrap ?? this.container.querySelector('[data-jie-canvas-wrap]');
+    if (!fit || !crop || !wrap) return;
+
+    // The pivot must be in *page* coordinates (same space as pointer events):
+    // `fit.offset` is relative to the viewport element, so add its page origin.
+    const box = wrap.getBoundingClientRect();
+    const center = cropCenter(crop);
+    const cx = box.left + fit.offsetX + center.x * fit.scale;
+    const cy = box.top + fit.offsetY + center.y * fit.scale;
+    const startAngle = selectCropAngle(startState);
+    const grabbed = pointerAngle(cx, cy, event.clientX, event.clientY);
+
+    this.runPointerGesture(event, (e) => {
+      let angle = startAngle + (pointerAngle(cx, cy, e.clientX, e.clientY) - grabbed);
+      if (Math.abs(angle) < 2) angle = 0; // snap to straight
+      return { angle: Math.round(angle * 10) / 10 };
+    });
+  }
+
+  /**
+   * Shared pointer-drag loop: `compute` maps each move to a design patch. The
+   * first move opens a history step, the rest replace it (`commit: false`), so
+   * the whole gesture is a single undo.
+   */
+  private runPointerGesture(event: PointerEvent, compute: (e: PointerEvent) => DesignPatch): void {
+    event.preventDefault();
+    let committed = false;
+    const onMove = (e: PointerEvent) => {
+      this.store.update({ design: compute(e), commit: !committed });
       committed = true;
     };
     const onUp = () => {

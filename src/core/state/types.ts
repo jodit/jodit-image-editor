@@ -84,6 +84,12 @@ export interface Design {
   flip: FlipState;
   /** Orientation in degrees; always one of 0 | 90 | 180 | 270. */
   rotate: number;
+  /**
+   * Free rotation of the crop frame, in degrees (clockwise). Independent of the
+   * orthogonal `rotate`. The export samples the rotated frame back to an upright
+   * image, so `crop.width × crop.height` stays the output size.
+   */
+  angle: number;
   /** Crop window in the oriented (post-rotate/flip) coordinate space. */
   crop: Rect | null;
   /** Explicit output size; `null` means "derive from crop / source". */

@@ -35,7 +35,14 @@ export * as selectors from './core/state/selectors';
 export type { RasterImage } from './core/raster/raster';
 export { createRaster, solidRaster, cloneRaster } from './core/raster/raster';
 export { execute, isIdentity } from './core/pipeline/pipeline';
-export { crop, flip, resize, rotate90 } from './core/operations/transform';
+export { crop, flip, resize, rotate90, sampleRotatedRect } from './core/operations/transform';
+export {
+  cropCenter,
+  moveCropFree,
+  pointerAngle,
+  resizeRotatedCrop,
+  rotatedCorner,
+} from './core/geometry/crop-rotate';
 export {
   applyAspectRatio,
   centerRect,

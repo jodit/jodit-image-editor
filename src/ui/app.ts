@@ -9,6 +9,7 @@ import type { Translator } from '../core/i18n/i18n';
 import {
   selectCanRedo,
   selectCanUndo,
+  selectCropAngle,
   selectEffectiveCrop,
   selectIsCropping,
   selectIsDirty,
@@ -31,6 +32,8 @@ export interface AppContext {
   /** Reset all edits — the editor asks for confirmation before applying. */
   onReset: () => void;
   beginCropDrag: (handle: CropHandle, event: PointerEvent) => void;
+  /** Begin a pointer-driven free rotation of the crop frame. */
+  beginCropRotate: (event: PointerEvent) => void;
 }
 
 export function renderApp(state: EditorState, ctx: AppContext): VNode {
@@ -140,11 +143,13 @@ function renderCropOverlay(state: EditorState, ctx: AppContext): VNode | null {
   const crop = selectEffectiveCrop(state);
   if (!fit || !crop) return null;
 
+  const angle = selectCropAngle(state);
   const style = {
     left: `${fit.offsetX + crop.x * fit.scale}px`,
     top: `${fit.offsetY + crop.y * fit.scale}px`,
     width: `${crop.width * fit.scale}px`,
     height: `${crop.height * fit.scale}px`,
+    transform: `rotate(${angle}deg)`,
   };
 
   const handles: CropHandle[] = ['nw', 'ne', 'sw', 'se'];
@@ -155,19 +160,33 @@ function renderCropOverlay(state: EditorState, ctx: AppContext): VNode | null {
       style,
       on: { pointerdown: (e: Event) => ctx.beginCropDrag('move', e as PointerEvent) },
     },
-    handles.map((handle) =>
+    [
+      // rotation knob, centred above the frame
       h('div', {
-        key: handle,
-        class: 'jie-crop__handle',
-        'data-h': handle,
+        key: 'rotate',
+        class: 'jie-crop__rotate',
+        title: 'Rotate',
         on: {
           pointerdown: (e: Event) => {
             e.stopPropagation();
-            ctx.beginCropDrag(handle, e as PointerEvent);
+            ctx.beginCropRotate(e as PointerEvent);
           },
         },
       }),
-    ),
+      ...handles.map((handle) =>
+        h('div', {
+          key: handle,
+          class: 'jie-crop__handle',
+          'data-h': handle,
+          on: {
+            pointerdown: (e: Event) => {
+              e.stopPropagation();
+              ctx.beginCropDrag(handle, e as PointerEvent);
+            },
+          },
+        }),
+      ),
+    ],
   );
 }
 

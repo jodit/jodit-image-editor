@@ -14,6 +14,7 @@ export function createIdentityDesign(): Design {
   return {
     flip: { horizontal: false, vertical: false },
     rotate: 0,
+    angle: 0,
     crop: null,
     resize: null,
     finetune: { ...IDENTITY_FINETUNE },

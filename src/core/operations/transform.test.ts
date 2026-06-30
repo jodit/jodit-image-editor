@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createRaster, getPixel } from '../raster/raster';
-import { crop, flip, resize, rotate90 } from './transform';
+import { crop, flip, resize, rotate90, sampleRotatedRect } from './transform';
+import { solidRaster } from '../raster/raster';
 import type { RasterImage } from '../raster/raster';
 
 /**
@@ -113,5 +114,30 @@ describe('resize', () => {
     img.data.fill(120);
     const out = resize(img, { width: 5, height: 5 });
     expect([...out.data].every((v) => v === 120)).toBe(true);
+  });
+});
+
+describe('sampleRotatedRect', () => {
+  it('at angle 0 matches a plain crop (pixel-aligned)', () => {
+    const img = ramp(4, 4);
+    const rotated = sampleRotatedRect(img, { x: 0, y: 0, width: 2, height: 2 }, 0);
+    const cropped = crop(img, { x: 0, y: 0, width: 2, height: 2 });
+    expect(rotated.width).toBe(2);
+    expect([...rotated.data]).toEqual([...cropped.data]);
+  });
+
+  it('keeps a solid colour for any interior rotation', () => {
+    const img = solidRaster(8, 8, [10, 120, 200, 255]);
+    const out = sampleRotatedRect(img, { x: 2, y: 2, width: 4, height: 4 }, 37);
+    // every interior pixel samples the same flat colour
+    expect(getPixel(out, 2, 2)).toEqual([10, 120, 200, 255]);
+  });
+
+  it('fills areas outside the source with transparency', () => {
+    const img = solidRaster(6, 6, [255, 255, 255, 255]);
+    // a frame straddling the corner → part of it is outside the image
+    const out = sampleRotatedRect(img, { x: -2, y: -2, width: 4, height: 4 }, 0);
+    expect(getPixel(out, 0, 0)[3]).toBe(0); // top-left is off-image → transparent
+    expect(getPixel(out, 3, 3)[3]).toBe(255); // bottom-right is on-image
   });
 });

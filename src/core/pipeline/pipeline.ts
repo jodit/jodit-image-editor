@@ -1,6 +1,6 @@
 import type { Design } from '../state/types';
 import type { RasterImage } from '../raster/raster';
-import { crop, flip, resize, rotate90 } from '../operations/transform';
+import { crop, flip, resize, rotate90, sampleRotatedRect } from '../operations/transform';
 import { applyFinetune } from '../filters/adjustments';
 import { applyFilter } from '../filters/filters';
 
@@ -22,8 +22,14 @@ export function execute(source: RasterImage, design: Design): RasterImage {
   if (design.flip.vertical) img = flip(img, 'vertical');
   if (design.rotate !== 0) img = rotate90(img, design.rotate);
 
-  // 2. Crop in the oriented coordinate space.
-  if (design.crop) img = crop(img, design.crop);
+  // 2. Crop in the oriented coordinate space — with free-angle straightening
+  //    when `angle` is set (the frame is rotated; we sample it back upright).
+  if (design.angle !== 0) {
+    const rect = design.crop ?? { x: 0, y: 0, width: img.width, height: img.height };
+    img = sampleRotatedRect(img, rect, design.angle);
+  } else if (design.crop) {
+    img = crop(img, design.crop);
+  }
 
   // 3. Explicit resize.
   if (design.resize) img = resize(img, design.resize);
@@ -41,6 +47,7 @@ export function isIdentity(design: Design): boolean {
     !design.flip.horizontal &&
     !design.flip.vertical &&
     design.rotate === 0 &&
+    design.angle === 0 &&
     design.crop === null &&
     design.resize === null &&
     design.filter === 'original' &&

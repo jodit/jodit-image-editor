@@ -19,13 +19,14 @@ export function selectIsCropping(state: EditorState): boolean {
 }
 
 /**
- * The design used to paint the live preview. While cropping we drop the crop so
- * the full image is visible *under* the drag handles; otherwise it is the full
- * present design.
+ * The design used to paint the live preview. While cropping we drop the crop
+ * *and* the free-rotation angle, so the canvas shows the plain upright image
+ * under the drag handles — only the overlay frame tilts. Straightening is
+ * applied once cropping ends. Otherwise it is the full present design.
  */
 export function selectPreviewDesign(state: EditorState): Design {
   const design = selectDesign(state);
-  return selectIsCropping(state) ? { ...design, crop: null } : design;
+  return selectIsCropping(state) ? { ...design, crop: null, angle: 0 } : design;
 }
 
 export function selectCanUndo(state: EditorState): boolean {
@@ -73,15 +74,28 @@ export function selectPreviewContentSize(state: EditorState): Size | null {
 }
 
 /**
+ * Padding (CSS px) kept between the fitted image and the viewport edges, so the
+ * crop handles and the rotation knob that sit *outside* the frame are never
+ * clipped — even for a full-image crop flush against the top.
+ */
+export const VIEWPORT_PADDING = 44;
+
+/**
  * How the preview content maps onto the measured viewport, including the manual
  * zoom factor. Shared by the canvas painter and the crop overlay so the handles
- * always sit exactly on the pixels they affect. `null` until both the source
- * and the viewport are known.
+ * always sit exactly on the pixels they affect. The image is fitted into the
+ * viewport *minus* {@link VIEWPORT_PADDING} on every side, then centred — which
+ * guarantees that much breathing room around the frame. `null` until both the
+ * source and the viewport are known.
  */
 export function selectViewportFit(state: EditorState): (ViewportFit & { content: Size }) | null {
   const content = selectPreviewContentSize(state);
   if (!content || !state.viewport) return null;
-  const base = fitInViewport(content, state.viewport);
+  const avail = {
+    width: Math.max(1, state.viewport.width - VIEWPORT_PADDING * 2),
+    height: Math.max(1, state.viewport.height - VIEWPORT_PADDING * 2),
+  };
+  const base = fitInViewport(content, avail);
   const scale = base.scale * state.zoom;
   const width = content.width * scale;
   const height = content.height * scale;
@@ -93,6 +107,11 @@ export function selectViewportFit(state: EditorState): (ViewportFit & { content:
     offsetY: (state.viewport.height - height) / 2,
     content,
   };
+}
+
+/** Free-rotation angle (degrees) of the crop frame. */
+export function selectCropAngle(state: EditorState): number {
+  return selectDesign(state).angle;
 }
 
 /** The crop rect to display: the explicit crop, or the whole oriented image. */

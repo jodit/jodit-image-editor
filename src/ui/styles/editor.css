@@ -259,7 +259,44 @@
   position: absolute;
   border: 1.5px dashed var(--jie-accent);
   box-shadow: 0 0 0 100vmax var(--jie-scrim, rgba(17, 24, 39, 0.45));
+  transform-origin: center;
   cursor: move;
+}
+
+/*
+ * Rotation knob, centred *above* the frame and connected by a short stem. The
+ * preview keeps `VIEWPORT_PADDING` around the image, so the knob has room and is
+ * never clipped — even for a full-image crop.
+ */
+.jie-crop__rotate {
+  position: absolute;
+  left: 50%;
+  top: -34px;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  background: var(--jie-bg);
+  border: 2px solid var(--jie-accent);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(20, 24, 40, 0.3);
+  cursor: grab;
+  touch-action: none;
+
+  /* stem runs from the knob's bottom (-16px) toward the frame, stopping ~5px
+     short of the edge so it never touches/overlaps the dashed border */
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 18px;
+    width: 2px;
+    height: 11px;
+    margin-left: -1px;
+    background: var(--jie-accent);
+  }
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 .jie-crop__handle {

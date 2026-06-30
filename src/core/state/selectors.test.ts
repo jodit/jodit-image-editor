@@ -12,6 +12,7 @@ import {
   selectOutputSize,
   selectPreviewDesign,
   selectViewportFit,
+  VIEWPORT_PADDING,
 } from './selectors';
 
 const withSource = () =>
@@ -71,24 +72,32 @@ describe('selectors', () => {
     expect(selectIsCropping(reduce(s, { activeTab: 'filters' }))).toBe(false);
   });
 
-  it('selectPreviewDesign drops the crop while cropping', () => {
-    let s = reduce(withSource(), { design: { crop: { x: 0, y: 0, width: 10, height: 10 } } });
+  it('selectPreviewDesign drops the crop and angle while cropping', () => {
+    let s = reduce(withSource(), {
+      design: { crop: { x: 0, y: 0, width: 10, height: 10 }, angle: 18 },
+    });
     s = reduce(s, { activeTab: 'adjust', activeTool: 'crop' });
     expect(selectPreviewDesign(s).crop).toBeNull();
+    expect(selectPreviewDesign(s).angle).toBe(0); // canvas stays upright; only the frame tilts
     s = reduce(s, { activeTab: 'filters' });
     expect(selectPreviewDesign(s).crop).not.toBeNull();
+    expect(selectPreviewDesign(s).angle).toBe(18);
   });
 
   it('selectViewportFit returns null until viewport is measured', () => {
     expect(selectViewportFit(withSource())).toBeNull();
   });
 
-  it('selectViewportFit maps content into the viewport with zoom', () => {
+  it('selectViewportFit fits content into the padded viewport, with zoom', () => {
     let s = reduce(withSource(), { viewport: { width: 800, height: 1000 } });
+    const avail = 800 - VIEWPORT_PADDING * 2; // 1600px-wide source is width-bound
+    const expected = avail / 1600;
     const fit = selectViewportFit(s)!;
-    expect(fit.scale).toBeCloseTo(0.5); // 800/1600
+    expect(fit.scale).toBeCloseTo(expected);
+    // image stays inside the viewport with padding to spare on each side
+    expect((800 - fit.width) / 2).toBeGreaterThanOrEqual(VIEWPORT_PADDING - 0.5);
     s = reduce(s, { zoom: 2 });
-    expect(selectViewportFit(s)!.scale).toBeCloseTo(1);
+    expect(selectViewportFit(s)!.scale).toBeCloseTo(expected * 2);
   });
 
   it('selectEffectiveCrop falls back to the whole oriented image', () => {

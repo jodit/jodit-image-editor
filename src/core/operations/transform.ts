@@ -114,6 +114,74 @@ export function resize(img: RasterImage, size: Size): RasterImage {
   return out;
 }
 
+/**
+ * Sample a *rotated* rectangle out of `img` into an upright raster.
+ *
+ * The rect's footprint (`width × height`, centred at the rect centre) is rotated
+ * clockwise by `angleDeg` about that centre; for every output pixel we map back
+ * into the source and bilinearly sample. Pixels that fall outside the source are
+ * transparent. This powers free-angle crop ("straighten"); `angleDeg === 0`
+ * is equivalent to {@link crop} (minus the bounds clamp).
+ */
+export function sampleRotatedRect(img: RasterImage, rect: Rect, angleDeg: number): RasterImage {
+  const w = Math.max(1, Math.round(rect.width));
+  const h = Math.max(1, Math.round(rect.height));
+  const out = createRaster(w, h);
+
+  const cx = rect.x + rect.width / 2;
+  const cy = rect.y + rect.height / 2;
+  const rad = (angleDeg * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+
+  for (let oy = 0; oy < h; oy++) {
+    const ly = oy + 0.5 - h / 2;
+    for (let ox = 0; ox < w; ox++) {
+      const lx = ox + 0.5 - w / 2;
+      const sx = cx + lx * cos - ly * sin - 0.5;
+      const sy = cy + lx * sin + ly * cos - 0.5;
+      sampleBilinear(img, sx, sy, out, indexOf(out, ox, oy));
+    }
+  }
+  return out;
+}
+
+/** Bilinear sample at (fx, fy); fully outside the source → transparent. */
+function sampleBilinear(
+  img: RasterImage,
+  fx: number,
+  fy: number,
+  out: RasterImage,
+  di: number,
+): void {
+  if (fx <= -1 || fy <= -1 || fx >= img.width || fy >= img.height) {
+    out.data[di] = 0;
+    out.data[di + 1] = 0;
+    out.data[di + 2] = 0;
+    out.data[di + 3] = 0;
+    return;
+  }
+  const x0 = Math.floor(fx);
+  const y0 = Math.floor(fy);
+  const wx = fx - x0;
+  const wy = fy - y0;
+  const x0c = clampIndex(x0, img.width);
+  const x1c = clampIndex(x0 + 1, img.width);
+  const y0c = clampIndex(y0, img.height);
+  const y1c = clampIndex(y0 + 1, img.height);
+
+  const i00 = indexOf(img, x0c, y0c);
+  const i10 = indexOf(img, x1c, y0c);
+  const i01 = indexOf(img, x0c, y1c);
+  const i11 = indexOf(img, x1c, y1c);
+
+  for (let c = 0; c < CHANNELS; c++) {
+    const top = lerp(img.data[i00 + c]!, img.data[i10 + c]!, wx);
+    const bottom = lerp(img.data[i01 + c]!, img.data[i11 + c]!, wx);
+    out.data[di + c] = lerp(top, bottom, wy);
+  }
+}
+
 function copyPixel(src: RasterImage, si: number, dst: RasterImage, di: number): void {
   dst.data[di] = src.data[si]!;
   dst.data[di + 1] = src.data[si + 1]!;
