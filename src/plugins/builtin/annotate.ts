@@ -41,7 +41,7 @@ export const annotateTool: ToolDefinition = {
     };
 
     const editor = selected
-      ? h('div', { class: 'jie-fieldrow' }, [
+      ? h('div', { class: 'jie-toolrow' }, [
           h('input', {
             class: 'jie-input',
             type: 'text',
@@ -49,17 +49,20 @@ export const annotateTool: ToolDefinition = {
             on: { input: (e: Event) => patch({ text: (e.target as HTMLInputElement).value }) },
           }),
           h('input', {
+            class: 'jie-color',
             type: 'color',
             value: selected.color,
             on: { input: (e: Event) => patch({ color: (e.target as HTMLInputElement).value }) },
           }),
           button({
             label: 'B',
+            className: 'jie-btn--bold',
             active: selected.bold,
             onClick: () => patch({ bold: !selected.bold }),
           }),
           button({
             label: 'I',
+            className: 'jie-btn--italic',
             active: selected.italic,
             onClick: () => patch({ italic: !selected.italic }),
           }),

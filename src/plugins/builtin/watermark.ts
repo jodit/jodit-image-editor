@@ -36,7 +36,7 @@ export const watermarkTool: ToolDefinition = {
       });
     };
 
-    return h('div', { class: 'jie-fieldrow' }, [
+    return h('div', { class: 'jie-toolrow' }, [
       h('input', {
         class: 'jie-input',
         type: 'text',

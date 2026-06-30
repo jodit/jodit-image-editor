@@ -19,10 +19,16 @@
   --jie-danger: #e0533d;
   --jie-shadow: 0 1px 2px rgba(20, 24, 40, 0.06), 0 8px 24px rgba(20, 24, 40, 0.06);
 
-  /* scale */
-  --jie-radius: 12px;
-  --jie-radius-sm: 8px;
-  --jie-gap: 16px;
+  /* sizing scale — one system for every control */
+  --jie-control-h: 38px; /* shared height: buttons, inputs, selects, color, slider row */
+  --jie-control-px: 12px; /* horizontal padding inside controls */
+  --jie-icon: 20px; /* inline icon size (rail icons override to 24) */
+  --jie-radius: 12px; /* cards / panels */
+  --jie-radius-sm: 8px; /* controls */
+  --jie-gap: 16px; /* between groups */
+  --jie-gap-sm: 8px; /* between controls in a row */
+  --jie-font-sm: 13px;
+  --jie-font-md: 14px;
   --jie-rail-w: 92px;
   --jie-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
@@ -98,11 +104,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 9px 14px;
+  gap: 6px;
+  height: var(--jie-control-h);
+  min-width: var(--jie-control-h); /* single-char buttons (B / I) stay square */
+  padding: 0 var(--jie-control-px);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--jie-font-md);
   font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
   color: var(--jie-text);
   background: transparent;
   border: 1px solid transparent;
@@ -120,12 +130,18 @@
     opacity: 0.4;
     cursor: default;
   }
+
+  /* inline icons are smaller than the standalone rail icons */
+  & .jie-icon {
+    width: var(--jie-icon);
+    height: var(--jie-icon);
+  }
 }
 
 .jie-btn--primary {
   color: #fff;
   background: var(--jie-accent);
-  padding-inline: 22px;
+  padding-inline: 18px;
 
   &:hover:not(:disabled) {
     background: color-mix(in srgb, var(--jie-accent) 88%, #000);
@@ -133,7 +149,8 @@
 }
 
 .jie-btn--icon {
-  padding: 8px;
+  width: var(--jie-control-h);
+  padding: 0;
   color: var(--jie-text-dim);
 
   &:hover:not(:disabled) {
@@ -144,6 +161,15 @@
 .jie-btn--active {
   color: var(--jie-accent);
   background: var(--jie-accent-soft);
+}
+
+/* text-style modifiers (the B / I annotation toggles) */
+.jie-btn--bold {
+  font-weight: 800;
+}
+.jie-btn--italic {
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
 }
 
 .jie-icon {
@@ -277,17 +303,21 @@
   background: var(--jie-surface);
 }
 
+/* a row of equal-height controls, centred on a shared baseline */
 .jie-toolrow {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--jie-gap-sm);
+  align-items: center;
   justify-content: center;
 }
 
+/* a row of labelled (label-above) fields; inputs and buttons share a height,
+   so aligning their bottoms keeps everything tidy */
 .jie-fieldrow {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
+  gap: var(--jie-gap);
   align-items: flex-end;
   justify-content: center;
 }
@@ -295,15 +325,18 @@
 .jie-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
+  gap: 4px;
+  font-size: var(--jie-font-sm);
   color: var(--jie-text-dim);
 }
 
-.jie-input {
+.jie-input,
+.jie-select {
+  height: var(--jie-control-h);
   width: 120px;
-  padding: 9px 12px;
+  padding: 0 var(--jie-control-px);
   font: inherit;
+  font-size: var(--jie-font-md);
   color: var(--jie-text);
   background: var(--jie-bg);
   border: 1px solid var(--jie-border);
@@ -315,21 +348,46 @@
   }
 }
 
-/* slider */
+/* native colour input, normalised to the control height as a rounded swatch */
+.jie-color {
+  width: var(--jie-control-h);
+  height: var(--jie-control-h);
+  padding: 4px;
+  background: var(--jie-bg);
+  border: 1px solid var(--jie-border);
+  border-radius: var(--jie-radius-sm);
+  cursor: pointer;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  &::-webkit-color-swatch {
+    border: 0;
+    border-radius: 4px;
+  }
+  &::-moz-color-swatch {
+    border: 0;
+    border-radius: 4px;
+  }
+}
+
+/* slider — the whole control occupies the shared height and centres its track */
 .jie-slider {
   display: flex;
   align-items: center;
-  gap: 14px;
-  width: min(420px, 80vw);
+  gap: 10px;
+  height: var(--jie-control-h);
+  width: clamp(180px, 28vw, 300px);
 }
 
 .jie-slider__label {
-  font-size: 13px;
+  font-size: var(--jie-font-sm);
   color: var(--jie-text-dim);
+  white-space: nowrap;
 }
 
 .jie-slider__value {
-  min-width: 40px;
+  min-width: 2.5ch;
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
@@ -337,6 +395,7 @@
 
 .jie-range {
   flex: 1;
+  min-width: 0;
   accent-color: var(--jie-accent);
 }
 

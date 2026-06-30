@@ -20,6 +20,8 @@ export interface ButtonProps {
   active?: boolean;
   disabled?: boolean;
   title?: string;
+  /** Extra class(es) appended after the computed ones, e.g. `'jie-btn--bold'`. */
+  className?: string;
   key?: string | number;
 }
 
@@ -28,6 +30,7 @@ export function button(props: ButtonProps): VNode {
   if (props.variant === 'primary') classes.push('jie-btn--primary');
   if (props.variant === 'icon') classes.push('jie-btn--icon');
   if (props.active) classes.push('jie-btn--active');
+  if (props.className) classes.push(props.className);
 
   const children: VNode[] = [];
   if (props.icon) children.push(icon(props.icon));
