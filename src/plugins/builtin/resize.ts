@@ -21,7 +21,7 @@ export const resizeTool: ToolDefinition = {
 
     const locked = state.activeTool !== 'unlocked';
     const apply = (next: { width?: number; height?: number }) =>
-      update({ design: { resize: lockedResize(size, next, locked) } });
+      update({ design: { resize: lockedResize(size, next, locked, state.minResizeSize) } });
 
     return h('div', { class: 'jie-fieldrow' }, [
       numberField({

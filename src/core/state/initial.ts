@@ -36,6 +36,8 @@ export function createInitialState(): EditorState {
     selectedAnnotationId: null,
     theme: 'light',
     locale: 'en',
+    minCropSize: 8,
+    minResizeSize: 1,
     viewport: null,
   };
 }

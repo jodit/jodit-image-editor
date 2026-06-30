@@ -54,6 +54,10 @@ export interface ImageEditorProps {
   locale?: string;
   /** Dictionaries to register at construction (import from `@jodit/image-editor/locales/*`). */
   locales?: Locale[];
+  /** Smallest allowed crop frame size, in source pixels (default 8). */
+  minCropSize?: number;
+  /** Smallest allowed output dimension in the Resize tool, in pixels (default 1). */
+  minResizeSize?: number;
   /** Notification cadence; defaults to a requestAnimationFrame scheduler. */
   scheduler?: Scheduler;
   /** Custom image processor (codec/canvas). Defaults to the canvas codec. */
@@ -121,6 +125,10 @@ export class ImageEditor {
         ...createInitialState(),
         ...props.state,
         ...(props.locale ? { locale: props.locale } : {}),
+        ...(props.minCropSize !== undefined ? { minCropSize: Math.max(1, props.minCropSize) } : {}),
+        ...(props.minResizeSize !== undefined
+          ? { minResizeSize: Math.max(1, props.minResizeSize) }
+          : {}),
       },
     });
 
@@ -342,6 +350,7 @@ export class ImageEditor {
     if (!fit || !startCrop || !oriented) return;
 
     const angle = selectCropAngle(startState);
+    const min = startState.minCropSize;
     const startX = event.clientX;
     const startY = event.clientY;
 
@@ -349,12 +358,12 @@ export class ImageEditor {
       const dx = (e.clientX - startX) / fit.scale;
       const dy = (e.clientY - startY) / fit.scale;
       // A tilted frame resizes in its own (rotated) axes; an upright one clamps
-      // to the image bounds as before.
+      // to the image bounds as before. Neither shrinks below `minCropSize`.
       return {
         crop:
           angle !== 0
-            ? resizeRotatedCrop(startCrop, angle, handle, dx, dy)
-            : resizeCrop(startCrop, handle, dx, dy, oriented),
+            ? resizeRotatedCrop(startCrop, angle, handle, dx, dy, min)
+            : resizeCrop(startCrop, handle, dx, dy, oriented, null, min),
       };
     });
   }

@@ -86,6 +86,18 @@ describe('reduce', () => {
     expect(s.history.entries.length).toBe(3);
   });
 
+  it('updates the min crop/resize limits, clamping to at least 1', () => {
+    let s = createInitialState();
+    expect(s.minCropSize).toBe(8);
+    expect(s.minResizeSize).toBe(1);
+    s = reduce(s, { minCropSize: 40, minResizeSize: 32 });
+    expect(s.minCropSize).toBe(40);
+    expect(s.minResizeSize).toBe(32);
+    s = reduce(s, { minCropSize: 0, minResizeSize: -5 });
+    expect(s.minCropSize).toBe(1);
+    expect(s.minResizeSize).toBe(1);
+  });
+
   it('sanitises invalid zoom', () => {
     expect(reduce(createInitialState(), { zoom: -5 }).zoom).toBe(1);
     expect(reduce(createInitialState(), { zoom: 1000 }).zoom).toBe(64);

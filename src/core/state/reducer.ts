@@ -18,6 +18,12 @@ export function reduce(state: EditorState, patch: EditorPatch): EditorState {
   if (patch.zoom !== undefined) next = set(next, { zoom: sanitizeZoom(patch.zoom) });
   if (patch.theme !== undefined) next = set(next, { theme: patch.theme });
   if (patch.locale !== undefined) next = set(next, { locale: patch.locale });
+  if (patch.minCropSize !== undefined) {
+    next = set(next, { minCropSize: Math.max(1, patch.minCropSize) });
+  }
+  if (patch.minResizeSize !== undefined) {
+    next = set(next, { minResizeSize: Math.max(1, patch.minResizeSize) });
+  }
   if (patch.status !== undefined) next = set(next, { status: patch.status });
   if (patch.error !== undefined) next = set(next, { error: patch.error });
   if (patch.source !== undefined) next = set(next, { source: patch.source });

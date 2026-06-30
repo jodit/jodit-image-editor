@@ -48,10 +48,17 @@ describe('resizeRotatedCrop', () => {
     expect(out).toEqual({ x: 0, y: 0, width: 12, height: 14 });
   });
 
-  it('keeps the angle and respects the minimum size', () => {
+  it('keeps the angle and respects the default minimum size', () => {
     const out = resizeRotatedCrop(rect, 30, 'se', -1000, -1000);
     expect(out.width).toBeGreaterThanOrEqual(8);
     expect(out.height).toBeGreaterThanOrEqual(8);
+  });
+
+  it('honours a custom minimum size', () => {
+    // a 10×10 frame with no drag would stay 10×10, but min 25 floors both axes
+    const out = resizeRotatedCrop(rect, 30, 'se', 0, 0, 25);
+    expect(out.width).toBeCloseTo(25);
+    expect(out.height).toBeCloseTo(25);
   });
 
   it("delegates the 'move' handle to moveCropFree", () => {

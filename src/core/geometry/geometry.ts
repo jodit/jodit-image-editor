@@ -58,22 +58,25 @@ export function fitScale(content: Size, container: Size, allowUpscale = true): n
   return allowUpscale ? scale : Math.min(scale, 1);
 }
 
-/** Maintain aspect ratio when one dimension changes (the linked-resize case). */
-export function lockedResize(source: Size, next: Partial<Size>, locked: boolean): Size {
+/**
+ * Maintain aspect ratio when one dimension changes (the linked-resize case).
+ * Neither dimension drops below `min` (px).
+ */
+export function lockedResize(source: Size, next: Partial<Size>, locked: boolean, min = 1): Size {
   const ratio = source.width / source.height;
   if (!locked) {
     return {
-      width: Math.max(1, Math.round(next.width ?? source.width)),
-      height: Math.max(1, Math.round(next.height ?? source.height)),
+      width: Math.max(min, Math.round(next.width ?? source.width)),
+      height: Math.max(min, Math.round(next.height ?? source.height)),
     };
   }
   if (next.width !== undefined) {
-    const width = Math.max(1, Math.round(next.width));
-    return { width, height: Math.max(1, Math.round(width / ratio)) };
+    const width = Math.max(min, Math.round(next.width));
+    return { width, height: Math.max(min, Math.round(width / ratio)) };
   }
   if (next.height !== undefined) {
-    const height = Math.max(1, Math.round(next.height));
-    return { width: Math.max(1, Math.round(height * ratio)), height };
+    const height = Math.max(min, Math.round(next.height));
+    return { width: Math.max(min, Math.round(height * ratio)), height };
   }
   return { ...source };
 }

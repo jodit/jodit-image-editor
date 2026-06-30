@@ -72,6 +72,19 @@ describe('geometry', () => {
     });
   });
 
+  it('lockedResize never drops below the given minimum', () => {
+    // locked: both axes clamped to min
+    expect(lockedResize({ width: 200, height: 100 }, { width: 5 }, true, 20)).toEqual({
+      width: 20,
+      height: 20,
+    });
+    // unlocked: only the touched axis is forced up, the other is kept (>= min)
+    expect(lockedResize({ width: 200, height: 100 }, { width: 5 }, false, 20)).toEqual({
+      width: 20,
+      height: 100,
+    });
+  });
+
   it('fitInViewport centres content with contain scaling', () => {
     const fit = fitInViewport({ width: 200, height: 100 }, { width: 100, height: 100 });
     expect(fit.scale).toBeCloseTo(0.5);

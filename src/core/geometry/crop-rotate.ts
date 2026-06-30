@@ -1,4 +1,5 @@
 import type { Point, Rect } from '../state/types';
+import { DEFAULT_MIN_CROP } from './crop-interaction';
 import type { CropHandle } from './crop-interaction';
 
 /**
@@ -8,7 +9,6 @@ import type { CropHandle } from './crop-interaction';
  * pixels) and renders the result — every bit of geometry lives (and is tested)
  * here.
  */
-const MIN = 8;
 const DEG = Math.PI / 180;
 
 const SIGNS: Record<Exclude<CropHandle, 'move'>, readonly [number, number]> = {
@@ -54,6 +54,7 @@ export function resizeRotatedCrop(
   handle: CropHandle,
   dx: number,
   dy: number,
+  min: number = DEFAULT_MIN_CROP,
 ): Rect {
   if (handle === 'move') return moveCropFree(rect, dx, dy);
 
@@ -71,8 +72,8 @@ export function resizeRotatedCrop(
   const diffx = nd.x - fixed.x;
   const diffy = nd.y - fixed.y;
 
-  const width = Math.max(MIN, Math.abs(diffx * ux + diffy * uy));
-  const height = Math.max(MIN, Math.abs(diffx * -uy + diffy * ux));
+  const width = Math.max(min, Math.abs(diffx * ux + diffy * uy));
+  const height = Math.max(min, Math.abs(diffx * -uy + diffy * ux));
 
   return { x: cx - width / 2, y: cy - height / 2, width, height };
 }

@@ -144,6 +144,10 @@ export interface EditorState {
   theme: ThemeName;
   /** Active locale id. `'en'` (default) needs no dictionary. */
   locale: string;
+  /** Smallest allowed crop frame size, in source pixels (per axis). */
+  minCropSize: number;
+  /** Smallest allowed output dimension in the Resize tool, in pixels. */
+  minResizeSize: number;
   /** Measured size of the preview area, in CSS pixels. Ephemeral layout state. */
   viewport: Size | null;
 }
@@ -159,6 +163,8 @@ export interface EditorPatch {
   zoom?: number;
   theme?: ThemeName;
   locale?: string;
+  minCropSize?: number;
+  minResizeSize?: number;
   selectedAnnotationId?: string | null;
   status?: EditorStatus;
   error?: string | null;

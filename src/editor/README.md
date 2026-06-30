@@ -30,6 +30,14 @@ const editor = new ImageEditor({ container: '#editor', onSave: (blob) => save(bl
   render, and the pointer-drag crop loop (which dispatches transient
   `commit: false` patches, committing once on release).
 
-Props: `container`, `image?`, `state?`, `plugins?`, `tools?`, `scheduler?`,
-`processor?`, `previewMaxSize?`, `onSave?`. A `jie:save` `CustomEvent` is also
-dispatched on the container when the user saves.
+Props: `container`, `image?`, `state?`, `plugins?`, `tools?`, `locale?`,
+`locales?`, `scheduler?`, `processor?`, `previewMaxSize?`, `confirm?`, `onSave?`,
+and the size limits `minCropSize?` (smallest crop frame, source px — default 8)
+and `minResizeSize?` (smallest Resize dimension, px — default 1). A `jie:save`
+`CustomEvent` is also dispatched on the container when the user saves.
+
+```ts
+new ImageEditor({ container: '#editor', minCropSize: 64, minResizeSize: 16 });
+// both are live state too — change them any time:
+editor.update({ minCropSize: 100 });
+```

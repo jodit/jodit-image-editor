@@ -27,10 +27,16 @@ describe('resizeCrop', () => {
     expect(out).toEqual({ x: 10, y: 10, width: 50, height: 50 });
   });
 
-  it('respects the minimum size', () => {
+  it('respects the default minimum size', () => {
     const out = resizeCrop(rect, 'se', -1000, -1000, bounds);
     expect(out.width).toBeGreaterThanOrEqual(8);
     expect(out.height).toBeGreaterThanOrEqual(8);
+  });
+
+  it('honours a custom minimum size', () => {
+    const out = resizeCrop(rect, 'se', -1000, -1000, bounds, null, 30);
+    expect(out.width).toBe(30);
+    expect(out.height).toBe(30);
   });
 
   it('keeps the aspect ratio when provided', () => {
