@@ -1,0 +1,78 @@
+{
+  "name": "@jodit/image-editor",
+  "version": "0.1.0",
+  "description": "Vanilla, framework-free, reactive image editor (crop, resize, rotate, flip, filters, finetune, text annotations). view = f(state).",
+  "type": "module",
+  "license": "MIT",
+  "author": "Valeriy Chupurnov <chupurnov@gmail.com>",
+  "keywords": [
+    "image-editor",
+    "crop",
+    "resize",
+    "rotate",
+    "filters",
+    "canvas",
+    "vanilla",
+    "typescript",
+    "reactive"
+  ],
+  "sideEffects": false,
+  "main": "./dist/jodit-image-editor.es2021.js",
+  "module": "./dist/jodit-image-editor.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/jodit-image-editor.es2021.min.js",
+  "jsdelivr": "./dist/jodit-image-editor.es2021.min.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/jodit-image-editor.js",
+      "require": "./dist/jodit-image-editor.es2021.js",
+      "default": "./dist/jodit-image-editor.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "vite serve demo",
+    "build": "rimraf dist && vite build && vite build --mode min && vite build --mode es2021 && vite build --mode es2021-min",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "stats": "rimraf dist && vite build --mode analyze",
+    "analyze": "npm run stats && statoscope serve --input statoscope/stats.json",
+    "report": "npm run stats && statoscope generate --input statoscope/stats.json --output statoscope/report.html",
+    "size": "npm run stats && node scripts/check-size.mjs",
+    "lint": "eslint . && prettier --check \"**/*.{ts,css,json,md}\"",
+    "lint:fix": "eslint . --fix && prettier --write \"**/*.{ts,css,json,md}\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@statoscope/cli": "^5.29.0",
+    "@types/node": "^22.10.2",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.13.0",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.4.49",
+    "postcss-nesting": "^13.0.1",
+    "prettier": "^3.4.2",
+    "rimraf": "^6.0.1",
+    "rollup-plugin-webpack-stats": "^3.1.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vite": "^6.0.3",
+    "vite-plugin-css-injected-by-js": "^3.5.2",
+    "vite-plugin-dts": "^4.4.0",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

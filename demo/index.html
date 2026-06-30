@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <title>Jodit Image Editor — demo</title>
+    <style>
+      :root {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: #1f2430;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #eef0f6;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 4px;
+      }
+      p.lede {
+        margin: 0 0 20px;
+        color: #6b7180;
+        font-size: 14px;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .toolbar button,
+      .toolbar label {
+        padding: 8px 14px;
+        font: inherit;
+        font-size: 14px;
+        border: 1px solid #d7dae6;
+        border-radius: 8px;
+        background: #fff;
+        cursor: pointer;
+      }
+      .toolbar button:hover {
+        background: #f3f4ff;
+      }
+      #editor {
+        height: min(78vh, 820px);
+        background: #fff;
+        box-shadow: 0 10px 40px rgba(20, 24, 40, 0.1);
+        border-radius: 14px;
+      }
+      .result {
+        margin-top: 20px;
+      }
+      .result img {
+        max-width: 320px;
+        border-radius: 10px;
+        border: 1px solid #d7dae6;
+      }
+      input[type='file'] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Jodit Image Editor</h1>
+    <p class="lede">
+      Vanilla, framework-free, reactive image editor. The toolbar below drives the same public API a
+      host app would use — every action is an <code>editor.update(...)</code> or
+      <code>editor.toBlob()</code> call.
+    </p>
+
+    <div class="toolbar">
+      <label for="file">Open image…<input id="file" type="file" accept="image/*" /></label>
+      <button data-tab="adjust">Adjust</button>
+      <button data-tab="finetune">Finetune</button>
+      <button data-tab="filters">Filters</button>
+      <button data-tab="annotate">Annotate</button>
+      <button data-tab="resize">Resize</button>
+      <button id="undo">Undo</button>
+      <button id="redo">Redo</button>
+      <button id="theme">Toggle theme</button>
+      <button id="export">Export → blob</button>
+    </div>
+
+    <div id="editor"></div>
+
+    <div class="result" id="result" hidden>
+      <h1>Exported result</h1>
+      <img id="result-img" alt="exported result" />
+      <p><a id="result-link" download="edited.png">Download</a></p>
+    </div>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

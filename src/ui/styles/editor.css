@@ -1,0 +1,426 @@
+/*
+ * Jodit Image Editor — design system & layout.
+ *
+ * Everything is scoped under `.jie` so the stylesheet can be injected into any
+ * page without leaking. Tokens are CSS custom properties; switching `data-theme`
+ * re-themes the whole tree. PostCSS handles nesting + autoprefixing.
+ */
+
+.jie {
+  /* palette */
+  --jie-accent: #5b5fc7;
+  --jie-accent-soft: #eceefb;
+  --jie-bg: #ffffff;
+  --jie-surface: #ffffff;
+  --jie-stage: #f3f4f8;
+  --jie-border: #e6e8ef;
+  --jie-text: #1f2430;
+  --jie-text-dim: #8a90a2;
+  --jie-danger: #e0533d;
+  --jie-shadow: 0 1px 2px rgba(20, 24, 40, 0.06), 0 8px 24px rgba(20, 24, 40, 0.06);
+
+  /* scale */
+  --jie-radius: 12px;
+  --jie-radius-sm: 8px;
+  --jie-gap: 16px;
+  --jie-rail-w: 92px;
+  --jie-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  box-sizing: border-box;
+  font-family: var(--jie-font);
+  color: var(--jie-text);
+  background: var(--jie-bg);
+  border: 1px solid var(--jie-border);
+  border-radius: var(--jie-radius);
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+
+  & *,
+  & *::before,
+  & *::after {
+    box-sizing: border-box;
+  }
+
+  &[data-theme='dark'] {
+    --jie-accent: #8a8df0;
+    --jie-accent-soft: #2a2d44;
+    --jie-bg: #14161f;
+    --jie-surface: #1b1e2a;
+    --jie-stage: #0f1118;
+    --jie-border: #2a2e3d;
+    --jie-text: #e7e9f3;
+    --jie-text-dim: #8b91a7;
+    --jie-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ---- top bar ------------------------------------------------------------ */
+.jie-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--jie-gap);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--jie-border);
+  background: var(--jie-surface);
+}
+
+.jie-topbar__meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto;
+  color: var(--jie-text-dim);
+  font-size: 14px;
+}
+
+.jie-zoom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.jie-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---- buttons ------------------------------------------------------------ */
+.jie-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--jie-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--jie-radius-sm);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--jie-accent-soft);
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+.jie-btn--primary {
+  color: #fff;
+  background: var(--jie-accent);
+  padding-inline: 22px;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--jie-accent) 88%, #000);
+  }
+}
+
+.jie-btn--icon {
+  padding: 8px;
+  color: var(--jie-text-dim);
+
+  &:hover:not(:disabled) {
+    color: var(--jie-text);
+  }
+}
+
+.jie-btn--active {
+  color: var(--jie-accent);
+  background: var(--jie-accent-soft);
+}
+
+.jie-icon {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+
+  & svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* ---- body / rail -------------------------------------------------------- */
+.jie-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.jie-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: var(--jie-rail-w);
+  padding: 14px 10px;
+  border-right: 1px solid var(--jie-border);
+  background: var(--jie-surface);
+  overflow-y: auto;
+}
+
+.jie-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--jie-text-dim);
+  background: transparent;
+  border: 0;
+  border-radius: var(--jie-radius-sm);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+
+  &:hover {
+    background: var(--jie-accent-soft);
+  }
+  &[aria-selected='true'] {
+    color: var(--jie-accent);
+    background: var(--jie-accent-soft);
+  }
+}
+
+/* ---- stage / preview ---------------------------------------------------- */
+.jie-stage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--jie-bg);
+}
+
+.jie-canvas-wrap {
+  position: relative;
+  flex: 1;
+  margin: 16px;
+  border-radius: var(--jie-radius);
+  background: var(--jie-stage);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.jie-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* crop overlay */
+.jie-crop {
+  position: absolute;
+  border: 1.5px dashed var(--jie-accent);
+  box-shadow: 0 0 0 100vmax var(--jie-scrim, rgba(17, 24, 39, 0.45));
+  cursor: move;
+}
+
+.jie-crop__handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--jie-bg);
+  border: 2px solid var(--jie-accent);
+  border-radius: 50%;
+
+  &[data-h='nw'] {
+    top: -7px;
+    left: -7px;
+    cursor: nwse-resize;
+  }
+  &[data-h='ne'] {
+    top: -7px;
+    right: -7px;
+    cursor: nesw-resize;
+  }
+  &[data-h='sw'] {
+    bottom: -7px;
+    left: -7px;
+    cursor: nesw-resize;
+  }
+  &[data-h='se'] {
+    bottom: -7px;
+    right: -7px;
+    cursor: nwse-resize;
+  }
+}
+
+/* ---- bottom panel ------------------------------------------------------- */
+.jie-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 16px 20px;
+  border-top: 1px solid var(--jie-border);
+  background: var(--jie-surface);
+}
+
+.jie-toolrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.jie-fieldrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.jie-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--jie-text-dim);
+}
+
+.jie-input {
+  width: 120px;
+  padding: 9px 12px;
+  font: inherit;
+  color: var(--jie-text);
+  background: var(--jie-bg);
+  border: 1px solid var(--jie-border);
+  border-radius: var(--jie-radius-sm);
+
+  &:focus {
+    outline: 2px solid var(--jie-accent-soft);
+    border-color: var(--jie-accent);
+  }
+}
+
+/* slider */
+.jie-slider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(420px, 80vw);
+}
+
+.jie-slider__label {
+  font-size: 13px;
+  color: var(--jie-text-dim);
+}
+
+.jie-slider__value {
+  min-width: 40px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.jie-range {
+  flex: 1;
+  accent-color: var(--jie-accent);
+}
+
+/* filter thumbnails */
+.jie-thumbs {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  padding-bottom: 4px;
+  overflow-x: auto;
+  justify-content: flex-start;
+}
+
+.jie-thumb {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  padding: 4px;
+  font-size: 12px;
+  color: var(--jie-text-dim);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+
+  & canvas,
+  & .jie-thumb__swatch {
+    width: 76px;
+    height: 56px;
+    border-radius: var(--jie-radius-sm);
+    border: 2px solid transparent;
+    object-fit: cover;
+    background: var(--jie-stage);
+  }
+
+  &[aria-pressed='true'] {
+    color: var(--jie-accent);
+
+    & canvas,
+    & .jie-thumb__swatch {
+      border-color: var(--jie-accent);
+    }
+  }
+}
+
+/* ---- responsive / mobile ------------------------------------------------ */
+@media (max-width: 720px) {
+  .jie {
+    --jie-rail-w: 100%;
+  }
+
+  .jie-topbar__meta {
+    display: none;
+  }
+
+  .jie-body {
+    flex-direction: column-reverse;
+  }
+
+  .jie-rail {
+    flex-direction: row;
+    width: 100%;
+    border-right: 0;
+    border-top: 1px solid var(--jie-border);
+    overflow-x: auto;
+  }
+
+  .jie-tab {
+    flex: 0 0 auto;
+    min-width: 72px;
+  }
+
+  .jie-canvas-wrap {
+    margin: 10px;
+  }
+
+  .jie-input {
+    width: 100px;
+  }
+}
+
+@media (hover: none) {
+  .jie-crop__handle {
+    width: 22px;
+    height: 22px;
+  }
+}
