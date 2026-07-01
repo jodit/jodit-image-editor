@@ -5,6 +5,11 @@ import type { ImageCodec } from '../image/codec';
 import { SyncScheduler } from '../core/scheduler/scheduler';
 import { solidRaster } from '../core/raster/raster';
 
+const setValue = (input: HTMLInputElement, value: string, event: 'input' | 'change'): void => {
+  input.value = value;
+  input.dispatchEvent(new Event(event, { bubbles: true }));
+};
+
 /**
  * One interface-driven test per screen. We click/drag the *rendered* controls
  * and assert on the *rendered* result (text, attributes, input values, presence
@@ -181,7 +186,7 @@ describe('Focus screen (selective blur)', () => {
     // drag the Intensity slider → its readout updates (focus materialises)
     const range = all('.jie-range')[0] as HTMLInputElement;
     setValue(range, '70', 'input');
-    expect(($('.jie-slider__value') as HTMLElement).textContent).toBe('70');
+    expect(($('.jie-slider__value') as unknown as HTMLElement).textContent).toBe('70');
 
     // switch to Linear
     click(byText('.jie-btn', 'Linear'));
