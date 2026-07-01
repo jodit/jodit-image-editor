@@ -1,6 +1,6 @@
 {
   "name": "@jodit/image-editor",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Vanilla, framework-free, reactive image editor (crop, resize, rotate, flip, filters, finetune, text annotations). view = f(state).",
   "type": "module",
   "license": "MIT",

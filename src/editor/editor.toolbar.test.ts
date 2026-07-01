@@ -74,8 +74,9 @@ describe('external save handlers', () => {
     await editor.save();
 
     expect(onSave).toHaveBeenCalledTimes(1);
-    expect(onSave.mock.calls[0][0]).toBeInstanceOf(Blob);
-    expect(onSave.mock.calls[0][1]).toBe(editor);
+    const call = onSave.mock.calls[0] ?? [];
+    expect(call[0]).toBeInstanceOf(Blob);
+    expect(call[1]).toBe(editor);
   });
 
   it('saveAs() exports and calls onSaveAs', async () => {
@@ -86,7 +87,7 @@ describe('external save handlers', () => {
     await editor.saveAs();
 
     expect(onSaveAs).toHaveBeenCalledTimes(1);
-    expect(onSaveAs.mock.calls[0][0]).toBeInstanceOf(Blob);
+    expect((onSaveAs.mock.calls[0] ?? [])[0]).toBeInstanceOf(Blob);
   });
 
   it('save()/saveAs() are no-ops before an image is loaded', async () => {
