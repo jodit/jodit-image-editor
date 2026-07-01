@@ -57,24 +57,37 @@ export interface FinetuneState {
 export type FilterId =
   'original' | 'invert' | 'grayscale' | 'sepia' | 'solarize' | 'clarendon' | 'gingham';
 
+export type HAlign = 'left' | 'center' | 'right';
+export type VAlign = 'top' | 'middle' | 'bottom';
+
 export interface TextAnnotation {
   id: string;
   type: 'text';
   text: string;
-  /** Top-left position, normalised 0..1 against the cropped image. */
+  /** Anchor point, normalised 0..1 against the cropped image. */
   x: number;
   y: number;
   /** Font size as a fraction (0..1) of the image height — resolution independent. */
   fontSize: number;
+  /** CSS font stack, e.g. `'Arial, Helvetica, sans-serif'`. */
   fontFamily: string;
   color: string;
   bold: boolean;
   italic: boolean;
-  align: 'left' | 'center' | 'right';
+  /** Horizontal anchoring of the text at `x`. */
+  align: HAlign;
+  /** Vertical anchoring of the text at `y`. */
+  valign: VAlign;
 }
 
 /** Discriminated union, intentionally open for plugin-defined annotations. */
 export type Annotation = TextAnnotation;
+
+/** A selectable font: a display `label` and the CSS font-family `value`. */
+export interface FontOption {
+  label: string;
+  value: string;
+}
 
 /**
  * The *design* is the declarative description of every edit. It is the unit of
@@ -98,6 +111,24 @@ export interface Design {
   /** Built-in or plugin-registered filter id. */
   filter: Loose<FilterId>;
   annotations: Annotation[];
+  /** Selective ("tilt-shift") blur; `null` = whole image is sharp. */
+  focus: Focus | null;
+}
+
+export type FocusShape = 'radial' | 'linear';
+
+/** A selective-blur region: sharp inside, blurred outside. */
+export interface Focus {
+  shape: FocusShape;
+  /** Centre, normalised 0..1. */
+  x: number;
+  y: number;
+  /** Sharp-zone radius, as a fraction of the image's shorter side. */
+  radius: number;
+  /** Orientation of the sharp band, in degrees (linear only). */
+  angle: number;
+  /** Blur intensity, 0..100. */
+  amount: number;
 }
 
 /**
@@ -115,7 +146,7 @@ export interface HistoryState<T> {
   index: number;
 }
 
-export type TabId = Loose<'adjust' | 'finetune' | 'filters' | 'watermark' | 'annotate' | 'resize'>;
+export type TabId = Loose<'adjust' | 'finetune' | 'filters' | 'annotate' | 'resize'>;
 
 export type ThemeName = 'light' | 'dark';
 
@@ -154,6 +185,12 @@ export interface EditorState {
   minCropSize: number;
   /** Smallest allowed output dimension in the Resize tool, in pixels. */
   minResizeSize: number;
+  /** Colour swatches offered by the colour picker (CSS `#rgb`/`#rrggbb`). */
+  palette: string[];
+  /** Fonts offered by the text font selector (web-safe by default). */
+  fonts: FontOption[];
+  /** Id of the currently open popover (colour picker / font menu), or `null`. */
+  activePopover: string | null;
   /** Measured size of the preview area, in CSS pixels. Ephemeral layout state. */
   viewport: Size | null;
 }
@@ -172,6 +209,9 @@ export interface EditorPatch {
   locale?: string;
   minCropSize?: number;
   minResizeSize?: number;
+  palette?: string[];
+  fonts?: FontOption[];
+  activePopover?: string | null;
   selectedAnnotationId?: string | null;
   status?: EditorStatus;
   error?: string | null;

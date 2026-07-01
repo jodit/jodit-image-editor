@@ -20,6 +20,7 @@ export interface ResolvedText {
   font: string;
   color: string;
   align: CanvasTextAlign;
+  baseline: CanvasTextBaseline;
 }
 
 /** Resolve a {@link TextAnnotation}'s normalised values to image pixels. */
@@ -38,6 +39,7 @@ export function resolveText(
     font: `${slant} ${weight} ${fontPx}px ${ann.fontFamily}`,
     color: ann.color,
     align: ann.align,
+    baseline: ann.valign, // 'top' | 'middle' | 'bottom' map 1:1 to canvas baselines
   };
 }
 
@@ -61,7 +63,6 @@ export function compositeAnnotations(
   if (!ctx) throw new Error('Unable to acquire a 2D canvas context');
 
   ctx.putImageData(toImageData(raster), 0, 0);
-  ctx.textBaseline = 'top';
 
   for (const ann of annotations) {
     if (!isText(ann)) continue;
@@ -69,6 +70,7 @@ export function compositeAnnotations(
     ctx.font = r.font;
     ctx.fillStyle = r.color;
     ctx.textAlign = r.align;
+    ctx.textBaseline = r.baseline;
     drawWrapped(ctx, r);
   }
 
@@ -76,9 +78,15 @@ export function compositeAnnotations(
   return createRaster(out.width, out.height, out.data);
 }
 
-/** Naive multi-line layout: split on `\n`, advance by 1.2× line height. */
+/**
+ * Multi-line layout: split on `\n`, 1.2× line height. The block is offset so
+ * the anchor point respects the vertical alignment (top/middle/bottom).
+ */
 function drawWrapped(ctx: CanvasRenderingContext2D, r: ResolvedText): void {
   const lines = r.text.split('\n');
   const lineHeight = r.fontPx * 1.2;
-  lines.forEach((line, i) => ctx.fillText(line, r.x, r.y + i * lineHeight));
+  const span = (lines.length - 1) * lineHeight;
+  const startY =
+    r.baseline === 'middle' ? r.y - span / 2 : r.baseline === 'bottom' ? r.y - span : r.y;
+  lines.forEach((line, i) => ctx.fillText(line, r.x, startY + i * lineHeight));
 }

@@ -6,6 +6,7 @@ import {
   clampRectToBounds,
   fitInViewport,
   fitScale,
+  fitWithinLimits,
   lockedResize,
   roundRect,
 } from './geometry';
@@ -83,6 +84,17 @@ describe('geometry', () => {
       width: 20,
       height: 100,
     });
+  });
+
+  it('fitWithinLimits downscales past the area / edge caps but never upscales', () => {
+    // 8000×6000 = 48 Mpx, cap 16.7 Mpx → sqrt(16.7/48) ≈ 0.59
+    expect(fitWithinLimits(8000, 6000, { maxPixels: 16_777_216 })).toBeCloseTo(0.591, 2);
+    // already within the area cap → no scaling
+    expect(fitWithinLimits(1000, 1000, { maxPixels: 16_777_216 })).toBe(1);
+    // a very wide image bound by the single-edge cap
+    expect(fitWithinLimits(20000, 100, { maxSize: 8192 })).toBeCloseTo(0.4096, 3);
+    // no limits → identity
+    expect(fitWithinLimits(9999, 9999, {})).toBe(1);
   });
 
   it('fitInViewport centres content with contain scaling', () => {

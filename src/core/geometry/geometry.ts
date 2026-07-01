@@ -81,6 +81,27 @@ export function lockedResize(source: Size, next: Partial<Size>, locked: boolean,
   return { ...source };
 }
 
+/**
+ * Downscale factor (0..1] that keeps `w × h` within a canvas' platform limits:
+ * a max single edge and/or a max pixel area. Returns `1` when it already fits
+ * (never upscales). This guards against silent black/empty output on browsers
+ * with low canvas ceilings — notably iOS Safari (~16.7 Mpx area).
+ */
+export function fitWithinLimits(
+  w: number,
+  h: number,
+  limits: { maxSize?: number; maxPixels?: number },
+): number {
+  let scale = 1;
+  if (limits.maxSize && limits.maxSize > 0) {
+    scale = Math.min(scale, limits.maxSize / Math.max(w, h));
+  }
+  if (limits.maxPixels && limits.maxPixels > 0) {
+    scale = Math.min(scale, Math.sqrt(limits.maxPixels / (w * h)));
+  }
+  return Math.min(1, scale);
+}
+
 export interface ViewportFit {
   scale: number;
   width: number;

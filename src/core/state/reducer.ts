@@ -27,6 +27,9 @@ export function reduce(state: EditorState, patch: EditorPatch): EditorState {
   if (patch.minResizeSize !== undefined) {
     next = set(next, { minResizeSize: Math.max(1, patch.minResizeSize) });
   }
+  if (patch.palette !== undefined) next = set(next, { palette: patch.palette });
+  if (patch.fonts !== undefined) next = set(next, { fonts: patch.fonts });
+  if (patch.activePopover !== undefined) next = set(next, { activePopover: patch.activePopover });
   if (patch.status !== undefined) next = set(next, { status: patch.status });
   if (patch.error !== undefined) next = set(next, { error: patch.error });
   if (patch.source !== undefined) next = set(next, { source: patch.source });

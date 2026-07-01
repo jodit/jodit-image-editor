@@ -20,6 +20,11 @@ export type {
   FilterId,
   FinetuneState,
   FlipState,
+  Focus,
+  FocusShape,
+  FontOption,
+  HAlign,
+  VAlign,
   Point,
   Rect,
   Size,
@@ -50,9 +55,12 @@ export {
   clampRectToBounds,
   fitInViewport,
   fitScale,
+  fitWithinLimits,
   lockedResize,
   roundRect,
 } from './core/geometry/geometry';
+export { flattenOnBackground, parseHexColor } from './core/raster/composite';
+export type { RGB } from './core/raster/composite';
 export type { ViewportFit } from './core/geometry/geometry';
 export { moveCrop, resizeCrop } from './core/geometry/crop-interaction';
 export type { CropHandle } from './core/geometry/crop-interaction';
@@ -64,6 +72,7 @@ export {
   updateAnnotation,
 } from './core/annotations/operations';
 export * as adjustments from './core/filters/adjustments';
+export { selectiveBlur, createDefaultFocus, smoothstep } from './core/filters/focus';
 export { applyFilter, getFilter, listFilters, registerFilter } from './core/filters/filters';
 export type { FilterDefinition, FilterFn } from './core/filters/filters';
 
@@ -98,6 +107,13 @@ export type { EditorApi, EditorPlugin, ToolContext, ToolDefinition } from './plu
 
 // --- UI kit (build matching tool panels / custom UIs) ---------------------
 export { button, icon, numberField, segmented, slider } from './ui/components/primitives';
+export { colorPicker } from './ui/components/color-picker';
+export type { ColorPickerProps } from './ui/components/color-picker';
+export { fontSelect } from './ui/components/font-select';
+export type { FontSelectProps } from './ui/components/font-select';
+export { positionGrid } from './ui/components/position-grid';
+export type { PositionGridProps } from './ui/components/position-grid';
+export { DEFAULT_PALETTE, DEFAULT_FONTS } from './core/state/initial';
 export type {
   ButtonProps,
   NumberFieldProps,
@@ -112,5 +128,5 @@ export type { AppContext } from './ui/app';
 
 // --- image I/O ------------------------------------------------------------
 export { CanvasImageCodec, defaultCanvasFactory } from './image/codec';
-export type { CanvasFactory, EncodeOptions, ImageCodec } from './image/codec';
+export type { CanvasFactory, CanvasLimits, EncodeOptions, ImageCodec } from './image/codec';
 export { ImageProcessor, createDefaultProcessor } from './image/processor';

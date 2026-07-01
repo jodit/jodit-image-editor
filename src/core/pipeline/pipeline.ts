@@ -3,6 +3,7 @@ import type { RasterImage } from '../raster/raster';
 import { crop, flip, resize, rotate90, sampleRotatedRect } from '../operations/transform';
 import { applyFinetune } from '../filters/adjustments';
 import { applyFilter } from '../filters/filters';
+import { selectiveBlur } from '../filters/focus';
 
 /**
  * The pure rendering pipeline: `execute(raster, design) => raster`.
@@ -38,6 +39,9 @@ export function execute(source: RasterImage, design: Design): RasterImage {
   img = applyFinetune(img, design.finetune);
   img = applyFilter(img, design.filter);
 
+  // 6. Selective ("tilt-shift") blur over the finished colours.
+  if (design.focus) img = selectiveBlur(img, design.focus);
+
   return img;
 }
 
@@ -51,6 +55,7 @@ export function isIdentity(design: Design): boolean {
     design.crop === null &&
     design.resize === null &&
     design.filter === 'original' &&
+    design.focus === null &&
     design.annotations.length === 0 &&
     design.finetune.brightness === 0 &&
     design.finetune.contrast === 0 &&

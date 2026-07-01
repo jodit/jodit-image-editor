@@ -1,5 +1,7 @@
 import type { RasterImage } from '../core/raster/raster';
 import { createRaster } from '../core/raster/raster';
+import { flattenOnBackground, parseHexColor } from '../core/raster/composite';
+import { fitWithinLimits } from '../core/geometry/geometry';
 import { toImageData } from './image-data';
 
 /**
@@ -14,12 +16,29 @@ export interface EncodeOptions {
   type?: string;
   /** 0..1 quality for lossy formats. */
   quality?: number;
+  /**
+   * Background colour (`#rgb` / `#rrggbb`) painted under the image before
+   * encoding. Applied automatically for alpha-less formats (JPEG/BMP, default
+   * white) so transparency doesn't turn black; pass it explicitly to flatten
+   * any format.
+   */
+  background?: string;
 }
 
 export interface ImageCodec {
   decode(blob: Blob): Promise<RasterImage>;
   encode(raster: RasterImage, options?: EncodeOptions): Promise<Blob>;
 }
+
+/** Canvas ceilings to keep decoded images within (guards iOS Safari etc.). */
+export interface CanvasLimits {
+  /** Max single edge, in pixels. */
+  maxSize?: number;
+  /** Max total pixels (w × h). Default ~16.7 Mpx — the common iOS Safari cap. */
+  maxPixels?: number;
+}
+
+const ALPHALESS = /image\/(jpe?g|bmp)/i;
 
 /** Factory for a 2D canvas — overridable so non-DOM hosts can plug in. */
 export type CanvasFactory = (width: number, height: number) => CanvasLike;
@@ -68,23 +87,47 @@ export function defaultCanvasFactory(width: number, height: number): CanvasLike 
  * fallback) and encodes via `toBlob`.
  */
 export class CanvasImageCodec implements ImageCodec {
-  constructor(private readonly createCanvas: CanvasFactory = defaultCanvasFactory) {}
+  private readonly maxPixels: number;
+  private readonly maxSize?: number;
+
+  constructor(
+    private readonly createCanvas: CanvasFactory = defaultCanvasFactory,
+    limits: CanvasLimits = {},
+  ) {
+    this.maxPixels = limits.maxPixels ?? 16_777_216;
+    this.maxSize = limits.maxSize;
+  }
 
   async decode(blob: Blob): Promise<RasterImage> {
     const bitmap = await this.toBitmap(blob);
-    const canvas = this.createCanvas(bitmap.width, bitmap.height);
+    // Fit within canvas limits so huge photos don't silently black out (iOS).
+    const scale = fitWithinLimits(bitmap.width, bitmap.height, {
+      maxSize: this.maxSize,
+      maxPixels: this.maxPixels,
+    });
+    const w = Math.max(1, Math.round(bitmap.width * scale));
+    const h = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = this.createCanvas(w, h);
     const ctx = this.context(canvas);
-    ctx.drawImage(bitmap, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(bitmap, 0, 0, w, h);
     if ('close' in bitmap && typeof bitmap.close === 'function') bitmap.close();
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, w, h);
     return createRaster(imageData.width, imageData.height, imageData.data);
   }
 
   async encode(raster: RasterImage, options: EncodeOptions = {}): Promise<Blob> {
-    const { type = 'image/png', quality = 0.92 } = options;
-    const canvas = this.createCanvas(raster.width, raster.height);
+    const { type = 'image/png', quality = 0.92, background } = options;
+    // Flatten alpha onto a background for formats that can't store it.
+    const flat =
+      background !== undefined || ALPHALESS.test(type)
+        ? flattenOnBackground(raster, parseHexColor(background ?? '#ffffff'))
+        : raster;
+    const canvas = this.createCanvas(flat.width, flat.height);
     const ctx = this.context(canvas);
-    ctx.putImageData(toImageData(raster), 0, 0);
+    ctx.putImageData(toImageData(flat), 0, 0);
     return canvas.toBlobAsync(type, quality);
   }
 
@@ -96,11 +139,17 @@ export class CanvasImageCodec implements ImageCodec {
 
   private async toBitmap(blob: Blob): Promise<ImageBitmap | HTMLImageElement> {
     if (typeof createImageBitmap === 'function') {
-      return createImageBitmap(blob);
+      // `imageOrientation: 'from-image'` applies the EXIF orientation tag, so
+      // photos shot on phones (portrait/landscape) decode upright instead of
+      // sideways. Without it, `createImageBitmap` defaults to 'none'.
+      return createImageBitmap(blob, { imageOrientation: 'from-image' });
     }
     return new Promise<HTMLImageElement>((resolve, reject) => {
       const url = URL.createObjectURL(blob);
       const img = new Image();
+      // Modern browsers honour EXIF for <img> drawImage by default
+      // (image-orientation: from-image); set it explicitly for older ones.
+      img.style.imageOrientation = 'from-image';
       img.onload = () => {
         URL.revokeObjectURL(url);
         resolve(img);

@@ -5,6 +5,8 @@ colour filters, finetune (brightness/contrast/saturation/blur/warmth) and text
 annotations. Inspired by the Filerobot Image Editor UI, built from scratch with
 no React, no runtime dependencies.
 
+**🌐 Live demo & docs: <https://xdsoft.net/jodit/image-editor/>**
+
 The whole editor is **`view = f(state)`**: a pure reducer produces immutable
 state, a pure view turns state into a virtual DOM, and a tiny reconciler patches
 the real DOM. Image processing is a separate **pure pipeline** over a DOM-free

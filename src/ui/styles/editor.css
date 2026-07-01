@@ -392,25 +392,170 @@
 }
 
 /* native colour input, normalised to the control height as a rounded swatch */
+/* colour picker: a swatch button that opens a popover of preset swatches */
+.jie-colorpicker {
+  position: relative;
+  display: inline-flex;
+}
+
+/* the trigger swatch (shows the current colour via inline `background`) */
 .jie-color {
   width: var(--jie-control-h);
   height: var(--jie-control-h);
-  padding: 4px;
+  padding: 0;
+  border: 1px solid var(--jie-border);
+  border-radius: var(--jie-radius-sm);
+  box-shadow: inset 0 0 0 2px var(--jie-bg);
+  cursor: pointer;
+}
+
+.jie-popover__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+.jie-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 51;
+  padding: 10px;
+  background: var(--jie-surface);
+  border: 1px solid var(--jie-border);
+  border-radius: var(--jie-radius);
+  box-shadow: var(--jie-shadow);
+}
+
+.jie-swatches {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+/* 3×3 position anchor grid */
+.jie-posgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  padding: 3px;
+  background: var(--jie-bg);
+  border: 1px solid var(--jie-border);
+  border-radius: var(--jie-radius-sm);
+}
+
+.jie-posgrid__cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  color: var(--jie-text-dim);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+
+  & .jie-icon {
+    width: 16px;
+    height: 16px;
+  }
+  &:hover {
+    background: var(--jie-accent-soft);
+    color: var(--jie-text);
+  }
+  &[aria-pressed='true'] {
+    background: var(--jie-accent);
+    color: #fff;
+  }
+}
+
+/* font selector */
+.jie-fontselect {
+  position: relative;
+  display: inline-flex;
+}
+
+.jie-fontselect__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--jie-control-h);
+  min-width: 130px;
+  padding: 0 10px;
+  font: inherit;
+  font-size: var(--jie-font-md);
+  color: var(--jie-text);
   background: var(--jie-bg);
   border: 1px solid var(--jie-border);
   border-radius: var(--jie-radius-sm);
   cursor: pointer;
 
-  &::-webkit-color-swatch-wrapper {
-    padding: 0;
+  & > span {
+    flex: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  &::-webkit-color-swatch {
-    border: 0;
-    border-radius: 4px;
+  & .jie-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--jie-text-dim);
+    flex: none;
   }
-  &::-moz-color-swatch {
-    border: 0;
-    border-radius: 4px;
+}
+
+.jie-fontlist {
+  min-width: 180px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jie-fontlist__item {
+  padding: 8px 10px;
+  font-size: 15px;
+  text-align: left;
+  color: var(--jie-text);
+  background: transparent;
+  border: 0;
+  border-radius: var(--jie-radius-sm);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--jie-accent-soft);
+  }
+  &[aria-pressed='true'] {
+    color: var(--jie-accent);
+    background: var(--jie-accent-soft);
+  }
+}
+
+.jie-swatch {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--jie-border);
+  border-radius: var(--jie-radius-sm);
+  box-shadow: inset 0 0 0 2px var(--jie-surface);
+  cursor: pointer;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+
+  &:hover {
+    transform: scale(1.08);
+  }
+  &[aria-pressed='true'] {
+    box-shadow:
+      inset 0 0 0 2px var(--jie-surface),
+      0 0 0 2px var(--jie-accent);
   }
 }
 

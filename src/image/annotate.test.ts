@@ -14,6 +14,7 @@ const base: TextAnnotation = {
   bold: false,
   italic: false,
   align: 'left',
+  valign: 'top',
 };
 
 describe('resolveText', () => {

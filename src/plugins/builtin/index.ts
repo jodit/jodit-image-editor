@@ -2,7 +2,7 @@ import type { ToolDefinition } from '../types';
 import { adjustTool } from './adjust';
 import { finetuneTool } from './finetune';
 import { filtersTool } from './filters';
-import { watermarkTool } from './watermark';
+import { focusTool } from './focus';
 import { annotateTool } from './annotate';
 import { resizeTool } from './resize';
 
@@ -12,7 +12,7 @@ import { resizeTool } from './resize';
  * can omit, reorder, or replace any of them through the same plugin API.
  */
 export function createBuiltinTools(): ToolDefinition[] {
-  return [adjustTool, finetuneTool, filtersTool, watermarkTool, annotateTool, resizeTool];
+  return [adjustTool, finetuneTool, filtersTool, focusTool, annotateTool, resizeTool];
 }
 
-export { adjustTool, finetuneTool, filtersTool, watermarkTool, annotateTool, resizeTool };
+export { adjustTool, finetuneTool, filtersTool, focusTool, annotateTool, resizeTool };

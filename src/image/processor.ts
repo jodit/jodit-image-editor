@@ -1,7 +1,7 @@
 import type { Design } from '../core/state/types';
 import type { RasterImage } from '../core/raster/raster';
 import { execute } from '../core/pipeline/pipeline';
-import type { CanvasFactory, EncodeOptions, ImageCodec } from './codec';
+import type { CanvasFactory, CanvasLimits, EncodeOptions, ImageCodec } from './codec';
 import { CanvasImageCodec, defaultCanvasFactory } from './codec';
 import { compositeAnnotations } from './annotate';
 
@@ -42,6 +42,7 @@ export class ImageProcessor {
  */
 export function createDefaultProcessor(
   createCanvas: CanvasFactory = defaultCanvasFactory,
+  limits?: CanvasLimits,
 ): ImageProcessor {
-  return new ImageProcessor({ codec: new CanvasImageCodec(createCanvas), createCanvas });
+  return new ImageProcessor({ codec: new CanvasImageCodec(createCanvas, limits), createCanvas });
 }

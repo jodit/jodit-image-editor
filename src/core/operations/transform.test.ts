@@ -115,6 +115,16 @@ describe('resize', () => {
     const out = resize(img, { width: 5, height: 5 });
     expect([...out.data].every((v) => v === 120)).toBe(true);
   });
+
+  it('anti-aliases a large downscale (box-averaging, not point sampling)', () => {
+    // a 1px-wide black/white stripe pattern, 8 columns → averaged to grey
+    const img = createRaster(8, 1);
+    for (let x = 0; x < 8; x++) img.data.set(x % 2 ? [255, 255, 255, 255] : [0, 0, 0, 255], x * 4);
+    const out = resize(img, { width: 1, height: 1 });
+    // a naive single bilinear sample would land on ~0 or ~255; averaging → ~127
+    expect(getPixel(out, 0, 0)[0]).toBeGreaterThan(110);
+    expect(getPixel(out, 0, 0)[0]).toBeLessThan(145);
+  });
 });
 
 describe('sampleRotatedRect', () => {

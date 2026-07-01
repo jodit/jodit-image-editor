@@ -71,14 +71,14 @@ function renderTopBar(state: EditorState, ctx: AppContext): VNode {
       h('div', { class: 'jie-zoom' }, [
         button({
           variant: 'icon',
-          icon: ICONS.minus,
+          icon: ICONS.zoomOut,
           title: t('Zoom out'),
           onClick: () => zoom(ctx, state, 1 / 1.2),
         }),
         h('span', {}, `${percent}%`),
         button({
           variant: 'icon',
-          icon: ICONS.plus,
+          icon: ICONS.zoomIn,
           title: t('Zoom in'),
           onClick: () => zoom(ctx, state, 1.2),
         }),

@@ -16,10 +16,11 @@ interface MountOptions {
   height?: number;
   viewport?: boolean;
   confirm?: () => boolean;
+  palette?: string[];
 }
 
 async function mount(opts: MountOptions = {}): Promise<ImageEditor> {
-  const { width = 1200, height = 800, viewport = false, confirm } = opts;
+  const { width = 1200, height = 800, viewport = false, confirm, palette } = opts;
   const codec: ImageCodec = {
     decode: async () => solidRaster(width, height, [128, 128, 128, 255]),
     encode: async () => new Blob(['x'], { type: 'image/png' }),
@@ -36,6 +37,7 @@ async function mount(opts: MountOptions = {}): Promise<ImageEditor> {
     }),
     scheduler: new SyncScheduler(),
     ...(confirm ? { confirm } : {}),
+    ...(palette ? { palette } : {}),
   });
   await editor.fromBlob(new Blob(['img'], { type: 'image/png' }));
   if (viewport) editor.update({ viewport: { width: 1000, height: 1000 } });
@@ -73,8 +75,8 @@ describe('rail navigation', () => {
     ['Adjust', () => byText('.jie-btn', 'Rotate')],
     ['Finetune', () => $('.jie-slider')],
     ['Filters', () => $('.jie-thumbs')],
-    ['Watermark', () => $('#jie-wm-input')],
-    ['Annotate', () => byText('.jie-btn', 'Text')],
+    ['Focus', () => byText('.jie-btn', 'Radial')],
+    ['Text', () => byText('.jie-btn', 'Add text')],
     ['Resize', () => $('.jie-fieldrow input.jie-input')],
   ];
 
@@ -168,11 +170,40 @@ describe('Resize screen', () => {
   });
 });
 
-describe('Annotate screen', () => {
-  it('adds text, edits it, and toggles bold — reflected in the rendered controls', async () => {
+describe('Focus screen (selective blur)', () => {
+  it('applies on a slider drag, switches shape, and clears', async () => {
     const editor = await mount();
-    click(byText('.jie-tab', 'Annotate'));
-    click(byText('.jie-btn', 'Text')); // add a label
+    click(byText('.jie-tab', 'Focus'));
+
+    // radial is the default shape
+    expect(byText('.jie-btn', 'Radial').className).toContain('jie-btn--active');
+
+    // drag the Intensity slider → its readout updates (focus materialises)
+    const range = all('.jie-range')[0] as HTMLInputElement;
+    setValue(range, '70', 'input');
+    expect(($('.jie-slider__value') as HTMLElement).textContent).toBe('70');
+
+    // switch to Linear
+    click(byText('.jie-btn', 'Linear'));
+    expect(byText('.jie-btn', 'Linear').className).toContain('jie-btn--active');
+
+    // a clear (trash) button appears in the panel once focus is active
+    const panelReset = () =>
+      [...document.querySelectorAll('.jie-panel .jie-btn')].find(
+        (b) => b.getAttribute('title') === 'Reset',
+      );
+    expect(panelReset()).toBeTruthy();
+    click(panelReset()!);
+    expect(panelReset()).toBeUndefined(); // cleared
+    editor.destroy();
+  });
+});
+
+describe('Text screen', () => {
+  it('adds the single text, edits it, and toggles bold — reflected in the controls', async () => {
+    const editor = await mount();
+    click(byText('.jie-tab', 'Text'));
+    click(byText('.jie-btn', 'Add text'));
 
     const textInput = $<HTMLInputElement>('.jie-panel input.jie-input');
     expect(textInput.value).toBe('Text');
@@ -187,17 +218,95 @@ describe('Annotate screen', () => {
     expect(byText('.jie-btn--bold', 'B').className).toContain('jie-btn--active');
     editor.destroy();
   });
+
+  it('allows only one text (Add is gone once a text exists; delete brings it back)', async () => {
+    const editor = await mount();
+    click(byText('.jie-tab', 'Text'));
+    click(byText('.jie-btn', 'Add text'));
+    // no "Add text" button while a text exists
+    expect(all('.jie-btn').some((b) => b.textContent?.includes('Add text'))).toBe(false);
+    // delete it → Add text returns
+    click(byTitle('.jie-btn', 'Delete'));
+    expect(byText('.jie-btn', 'Add text')).toBeTruthy();
+    editor.destroy();
+  });
+
+  it('the 3×3 position grid anchors the text (aria-pressed follows the pick)', async () => {
+    const editor = await mount();
+    click(byText('.jie-tab', 'Text'));
+    click(byText('.jie-btn', 'Add text'));
+    // default is centre-middle
+    expect($('.jie-posgrid__cell[data-pos="middle-center"]').getAttribute('aria-pressed')).toBe(
+      'true',
+    );
+    click($('.jie-posgrid__cell[data-pos="top-right"]'));
+    expect($('.jie-posgrid__cell[data-pos="top-right"]').getAttribute('aria-pressed')).toBe('true');
+    expect($('.jie-posgrid__cell[data-pos="middle-center"]').getAttribute('aria-pressed')).toBe(
+      'false',
+    );
+    editor.destroy();
+  });
 });
 
-describe('Watermark screen', () => {
-  it('stamps the typed text and hands off to the Annotate panel', async () => {
+describe('Text font selector', () => {
+  it('opens the font list, picks a font, and it sticks', async () => {
     const editor = await mount();
-    click(byText('.jie-tab', 'Watermark'));
-    $<HTMLInputElement>('#jie-wm-input').value = 'My Mark';
-    click(byText('.jie-btn', 'Add watermark'));
+    click(byText('.jie-tab', 'Text'));
+    click(byText('.jie-btn', 'Add text'));
 
-    expect(byText('.jie-tab', 'Annotate').getAttribute('aria-selected')).toBe('true');
-    expect($<HTMLInputElement>('.jie-panel input.jie-input').value).toBe('My Mark');
+    click($('.jie-fontselect__trigger'));
+    const items = all('.jie-fontlist__item');
+    expect(items.length).toBe(9); // the default web-safe set
+    click(byText('.jie-fontlist__item', 'Georgia'));
+    expect(document.querySelector('.jie-fontlist')).toBeNull(); // closed
+    // reopen → Georgia is selected
+    click($('.jie-fontselect__trigger'));
+    expect(byText('.jie-fontlist__item', 'Georgia').getAttribute('aria-pressed')).toBe('true');
+    editor.destroy();
+  });
+});
+
+describe('Text colour picker', () => {
+  const openPicker = async (palette?: string[]) => {
+    const editor = await mount({ palette });
+    click(byText('.jie-tab', 'Text'));
+    click(byText('.jie-btn', 'Add text'));
+    expect(document.querySelector('.jie-popover')).toBeNull(); // closed initially
+    click($('.jie-color')); // open the swatch popover
+    return editor;
+  };
+
+  it('opens a popover of preset swatches and picking one closes it and sticks', async () => {
+    const editor = await openPicker();
+    const swatches = all('.jie-swatch');
+    expect(swatches.length).toBe(16); // the default palette
+
+    const red = swatches.find((s) => s.getAttribute('title') === '#eb5757')!;
+    click(red);
+    expect(document.querySelector('.jie-popover')).toBeNull(); // popover closed
+
+    // the trigger reflects the pick, and reopening shows it selected
+    click($('.jie-color'));
+    const pressed = all('.jie-swatch').find((s) => s.getAttribute('aria-pressed') === 'true');
+    expect(pressed?.getAttribute('title')).toBe('#eb5757');
+    editor.destroy();
+  });
+
+  it('uses a configured palette', async () => {
+    const editor = await openPicker(['#111111', '#222222', '#333333']);
+    expect(all('.jie-swatch').map((s) => s.getAttribute('title'))).toEqual([
+      '#111111',
+      '#222222',
+      '#333333',
+    ]);
+    editor.destroy();
+  });
+
+  it('closes when the backdrop is clicked', async () => {
+    const editor = await openPicker();
+    expect(document.querySelector('.jie-popover')).not.toBeNull();
+    click($('.jie-popover__backdrop'));
+    expect(document.querySelector('.jie-popover')).toBeNull();
     editor.destroy();
   });
 });

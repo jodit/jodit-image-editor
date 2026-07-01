@@ -70,8 +70,13 @@ export function crop(img: RasterImage, rect: Rect): RasterImage {
 }
 
 /**
- * Resize using bilinear interpolation — smooth enough for previews and exports
- * without pulling in a canvas. Identity size returns a clone.
+ * Resize an image.
+ *
+ * For large *downscales* a single bilinear pass aliases badly (it samples only
+ * 4 neighbours and skips most source pixels → moiré). So we first halve each
+ * axis with box-averaging until it is within 2× of the target, then do the
+ * final bilinear pass — cheap anti-aliasing, à la `pica`. Upscales and small
+ * changes go straight to bilinear. Identity size returns a clone.
  */
 export function resize(img: RasterImage, size: Size): RasterImage {
   const width = Math.max(1, Math.round(size.width));
@@ -80,6 +85,48 @@ export function resize(img: RasterImage, size: Size): RasterImage {
     return createRaster(width, height, new Uint8ClampedArray(img.data));
   }
 
+  let cur = img;
+  while (cur.width >= width * 2) cur = halveWidth(cur);
+  while (cur.height >= height * 2) cur = halveHeight(cur);
+  if (cur.width === width && cur.height === height) {
+    return createRaster(width, height, new Uint8ClampedArray(cur.data));
+  }
+  return bilinearResize(cur, width, height);
+}
+
+/** Halve the width, averaging horizontal pixel pairs (box filter). */
+function halveWidth(img: RasterImage): RasterImage {
+  const w = Math.ceil(img.width / 2);
+  const out = createRaster(w, img.height);
+  for (let y = 0; y < img.height; y++) {
+    for (let x = 0; x < w; x++) {
+      const i0 = indexOf(img, 2 * x, y);
+      const i1 = indexOf(img, Math.min(2 * x + 1, img.width - 1), y);
+      const di = indexOf(out, x, y);
+      for (let c = 0; c < CHANNELS; c++)
+        out.data[di + c] = (img.data[i0 + c]! + img.data[i1 + c]!) / 2;
+    }
+  }
+  return out;
+}
+
+/** Halve the height, averaging vertical pixel pairs (box filter). */
+function halveHeight(img: RasterImage): RasterImage {
+  const h = Math.ceil(img.height / 2);
+  const out = createRaster(img.width, h);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < img.width; x++) {
+      const i0 = indexOf(img, x, 2 * y);
+      const i1 = indexOf(img, x, Math.min(2 * y + 1, img.height - 1));
+      const di = indexOf(out, x, y);
+      for (let c = 0; c < CHANNELS; c++)
+        out.data[di + c] = (img.data[i0 + c]! + img.data[i1 + c]!) / 2;
+    }
+  }
+  return out;
+}
+
+function bilinearResize(img: RasterImage, width: number, height: number): RasterImage {
   const out = createRaster(width, height);
   const sx = img.width / width;
   const sy = img.height / height;

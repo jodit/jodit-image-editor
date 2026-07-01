@@ -193,29 +193,35 @@ describe('journey: loading a new image resets the edits', () => {
   });
 });
 
-describe('journey: watermark hands off to annotate, editing continues', () => {
-  it('stamp → land on annotate → edit text → toggle bold → realign', async () => {
+describe('journey: text label — add, style, font, colour, position', () => {
+  it('add → edit → bold → pick font → pick colour → anchor bottom-right', async () => {
     const editor = await mount();
 
-    click(byText('.jie-tab', 'Watermark'));
-    setValue($('#jie-wm-input'), 'Photo ©', 'input');
-    click(byText('.jie-btn', 'Add watermark'));
-
-    // handed off to Annotate with the text pre-filled
-    expect(byText('.jie-tab', 'Annotate').getAttribute('aria-selected')).toBe('true');
+    click(byText('.jie-tab', 'Text'));
+    click(byText('.jie-btn', 'Add text'));
     const text = $<HTMLInputElement>('.jie-panel input.jie-input');
-    expect(text.value).toBe('Photo ©');
-
-    // continue editing the same label
     setValue(text, 'Final', 'input');
     expect($<HTMLInputElement>('.jie-panel input.jie-input').value).toBe('Final');
 
-    const bold = byText('.jie-btn--bold', 'B');
-    click(bold);
+    // bold
+    click(byText('.jie-btn--bold', 'B'));
     expect(byText('.jie-btn--bold', 'B').className).toContain('jie-btn--active');
 
-    click(byText('.jie-btn', 'Right'));
-    expect(byText('.jie-btn', 'Right').className).toContain('jie-btn--active');
+    // font
+    click($('.jie-fontselect__trigger'));
+    click(byText('.jie-fontlist__item', 'Impact'));
+    expect(document.querySelector('.jie-fontlist')).toBeNull();
+
+    // colour
+    click($('.jie-color'));
+    click(all('.jie-swatch').find((s) => s.getAttribute('title') === '#4a90e2')!);
+    expect(document.querySelector('.jie-popover')).toBeNull();
+
+    // position → bottom-right
+    click($('.jie-posgrid__cell[data-pos="bottom-right"]'));
+    expect($('.jie-posgrid__cell[data-pos="bottom-right"]').getAttribute('aria-pressed')).toBe(
+      'true',
+    );
     editor.destroy();
   });
 });

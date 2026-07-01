@@ -37,6 +37,24 @@ export const ICONS = {
   ),
   plus: svg('<path d="M12 5v14M5 12h14"/>'),
   minus: svg('<path d="M5 12h14"/>'),
+  zoomIn: svg(
+    '<circle cx="10.5" cy="10.5" r="7.5"/><path d="M21 21l-5.2-5.2M10.5 7.5v6M7.5 10.5h6"/>',
+  ),
+  zoomOut: svg('<circle cx="10.5" cy="10.5" r="7.5"/><path d="M21 21l-5.2-5.2M7.5 10.5h6"/>'),
+  // 3×3 position anchors (arrows point to the corner/edge)
+  posTopLeft: svg('<path d="M17 17 7 7M7 13V7h6"/>'),
+  posTop: svg('<path d="M12 19V6M7 11l5-5 5 5"/>'),
+  posTopRight: svg('<path d="M7 17 17 7M11 7h6v6"/>'),
+  posLeft: svg('<path d="M19 12H6M11 7l-5 5 5 5"/>'),
+  posCenter: svg(
+    '<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/>',
+  ),
+  posRight: svg('<path d="M5 12h13M13 7l5 5-5 5"/>'),
+  posBottomLeft: svg('<path d="M17 7 7 17M7 11v6h6"/>'),
+  posBottom: svg('<path d="M12 5v13M7 13l5 5 5-5"/>'),
+  posBottomRight: svg('<path d="M7 7l10 10M17 11v6h-6"/>'),
+  font: svg('<path d="M4 20 9.5 6h1L16 20M6 15h8M17 20l3-9h.5l3 9M18 17h4"/>'),
+  focus: svg('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/>'),
   lock: svg('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'),
   unlock: svg(
     '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/>',

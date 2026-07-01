@@ -5,7 +5,7 @@ The external extension API.
 - **`types.ts`** — `EditorPlugin`, `EditorApi`, `ToolDefinition`, `ToolContext`.
 - **`registry.ts`** — `ToolRegistry`: ordered, override-able, per-editor (no global
   singletons). Registration returns a disposer.
-- **`builtin/`** — the default tools (`adjust`, `finetune`, `filters`, `watermark`,
+- **`builtin/`** — the default tools (`adjust`, `finetune`, `filters`,
   `annotate`, `resize`). They are ordinary `ToolDefinition`s with no privileged
   access — a host can omit, reorder or replace any of them.
 

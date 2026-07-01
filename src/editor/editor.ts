@@ -2,7 +2,7 @@ import { Store } from '../core/store/store';
 import type { Scheduler } from '../core/scheduler/scheduler';
 import { createRafScheduler } from '../core/scheduler/scheduler';
 import { createInitialState } from '../core/state/initial';
-import type { DesignPatch, EditorPatch, EditorState } from '../core/state/types';
+import type { DesignPatch, EditorPatch, EditorState, FontOption } from '../core/state/types';
 import {
   selectCropAngle,
   selectDesign,
@@ -64,6 +64,17 @@ export interface ImageEditorProps {
   processor?: ImageProcessor;
   /** Longest edge of the in-editor preview raster. Exports stay full-res. */
   previewMaxSize?: number;
+  /**
+   * Cap the *decoded* source so huge photos don't silently produce black/empty
+   * output on browsers with low canvas ceilings (iOS Safari). `maxSourcePixels`
+   * defaults to ~16.7 Mpx; `maxSourceSize` caps a single edge (off by default).
+   */
+  maxSourcePixels?: number;
+  maxSourceSize?: number;
+  /** Colour swatches for the text colour picker (defaults to a built-in set). */
+  palette?: string[];
+  /** Fonts for the text font selector (defaults to a web-safe set). */
+  fonts?: FontOption[];
   /** Called when the user presses Save (after `toBlob`). */
   onSave?: (blob: Blob, editor: ImageEditor) => void;
   /** Called when the user presses "Save as" (after `toBlob`). */
@@ -113,7 +124,12 @@ export class ImageEditor {
 
   constructor(props: ImageEditorProps) {
     this.container = resolveContainer(props.container);
-    this.processor = props.processor ?? createDefaultProcessor();
+    this.processor =
+      props.processor ??
+      createDefaultProcessor(undefined, {
+        maxPixels: props.maxSourcePixels,
+        maxSize: props.maxSourceSize,
+      });
     this.previewMaxSize = props.previewMaxSize ?? 1600;
     this.onSaveCb = props.onSave;
     this.onSaveAsCb = props.onSaveAs;
@@ -133,6 +149,8 @@ export class ImageEditor {
         ...(props.minResizeSize !== undefined
           ? { minResizeSize: Math.max(1, props.minResizeSize) }
           : {}),
+        ...(props.palette ? { palette: props.palette } : {}),
+        ...(props.fonts ? { fonts: props.fonts } : {}),
       },
     });
 
@@ -220,9 +238,15 @@ export class ImageEditor {
   /** Render the current design at full resolution and encode it to a blob. */
   async toBlob(options?: EncodeOptions): Promise<Blob> {
     if (!this.source) throw new Error('No image loaded — call fromBlob() first');
+    const design = selectDesign(this.store.getState());
     this.store.update({ status: 'exporting' });
     try {
-      return await this.processor.toBlob(this.source, selectDesign(this.store.getState()), options);
+      // Text annotations are drawn with fillText — make sure any web font is
+      // loaded first, otherwise the export could use a fallback face.
+      if (design.annotations.length > 0 && typeof document !== 'undefined' && document.fonts) {
+        await document.fonts.ready;
+      }
+      return await this.processor.toBlob(this.source, design, options);
     } finally {
       this.store.update({ status: 'ready' });
     }

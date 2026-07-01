@@ -107,23 +107,18 @@ describe('crop flow (interface-driven, asserting rendered output)', () => {
   });
 });
 
-describe('watermark flow (interface-driven)', () => {
-  it('open Watermark → type text → Add stamps it and the Annotate panel shows it', async () => {
+describe('text flow (interface-driven)', () => {
+  it('open Text → Add text → edit the label, reflected in the rendered input', async () => {
     const editor = await mountWithImage(false); // no viewport → no canvas paint
 
-    // open the Watermark tab from the rail
-    pointer(byText('.jie-tab', 'Watermark'), 'click');
-    const input = $<HTMLInputElement>('#jie-wm-input');
-    input.value = 'My Mark'; // simulate typing into the rendered field
+    pointer(byText('.jie-tab', 'Text'), 'click');
+    pointer(byText('.jie-btn', 'Add text'), 'click');
 
-    // press the primary "Add watermark" button
-    pointer(byText('.jie-btn', 'Add watermark'), 'click');
-
-    // it jumps to Annotate (rendered: that rail tab is selected) …
-    expect(byText('.jie-tab', 'Annotate').getAttribute('aria-selected')).toBe('true');
-    // … and the annotation editor renders our text in its input
-    const annotateInput = $<HTMLInputElement>('.jie-panel input.jie-input');
-    expect(annotateInput.value).toBe('My Mark');
+    const input = $<HTMLInputElement>('.jie-panel input.jie-input');
+    expect(input.value).toBe('Text'); // the default label
+    input.value = 'My Mark';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    expect($<HTMLInputElement>('.jie-panel input.jie-input').value).toBe('My Mark');
     editor.destroy();
   });
 });

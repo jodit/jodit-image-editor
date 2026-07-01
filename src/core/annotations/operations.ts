@@ -1,4 +1,5 @@
 import type { Annotation, TextAnnotation } from '../state/types';
+import { DEFAULT_FONTS } from '../state/initial';
 
 /**
  * Pure list operations for annotations. They never mutate the input array, so
@@ -15,13 +16,14 @@ export function createTextAnnotation(
     type: 'text',
     text: 'Text',
     x: 0.5,
-    y: 0.4,
+    y: 0.5,
     fontSize: 0.06,
-    fontFamily: 'Arial',
-    color: '#222222',
+    fontFamily: DEFAULT_FONTS[0]!.value,
+    color: '#eb5757',
     bold: false,
     italic: false,
     align: 'center',
+    valign: 'middle',
     ...overrides,
   };
 }
