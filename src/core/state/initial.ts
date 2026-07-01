@@ -35,6 +35,7 @@ export function createInitialState(): EditorState {
     history: { entries: [createIdentityDesign()], index: 0 },
     selectedAnnotationId: null,
     theme: 'light',
+    showToolbar: true,
     locale: 'en',
     minCropSize: 8,
     minResizeSize: 1,

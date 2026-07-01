@@ -211,17 +211,22 @@ interface AppContext {
   update: (patch: EditorPatch) => void;
   tools: ToolDefinition[]; // the rail is built from these
   onSave: () => void;
+  onSaveAs: () => void; // "Save as" intent, distinct from Save
   onReset: () => void; // editor prompts for confirmation
   beginCropDrag: (handle, event) => void; // pointer-driven crop
 }
 ```
 
+The whole top bar is gated on `state.showToolbar` — set it to `false` to embed
+the editor chrome-less and render your own controls (driving `save()` /
+`saveAs()` / `update(...)`).
+
 The DOM structure it produces (handy for custom CSS):
 
 ```
 .jie[data-theme]
-├── .jie-topbar               Save · dimensions · zoom · reset/undo/redo
-│   ├── .jie-btn--primary
+├── .jie-topbar               Save · dimensions · zoom · reset/undo/redo   (omitted when showToolbar is false)
+│   ├── .jie-topbar__save → .jie-btn--primary (Save) + Save as
 │   ├── .jie-topbar__meta → .jie-zoom
 │   └── .jie-topbar__actions
 └── .jie-body

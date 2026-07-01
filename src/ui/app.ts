@@ -29,6 +29,8 @@ export interface AppContext {
   /** Translate a (English source) string for the active locale. */
   t: Translator;
   onSave: () => void;
+  /** Save under a new name — a "Save as" intent, distinct from Save. */
+  onSaveAs: () => void;
   /** Reset all edits — the editor asks for confirmation before applying. */
   onReset: () => void;
   beginCropDrag: (handle: CropHandle, event: PointerEvent) => void;
@@ -38,7 +40,7 @@ export interface AppContext {
 
 export function renderApp(state: EditorState, ctx: AppContext): VNode {
   return h('div', { class: 'jie', 'data-theme': state.theme }, [
-    renderTopBar(state, ctx),
+    state.showToolbar ? renderTopBar(state, ctx) : null,
     h('div', { class: 'jie-body' }, [renderRail(state, ctx), renderStage(state, ctx)]),
   ]);
 }
@@ -50,12 +52,19 @@ function renderTopBar(state: EditorState, ctx: AppContext): VNode {
 
   const t = ctx.t;
   return h('header', { class: 'jie-topbar' }, [
-    button({
-      label: t('Save'),
-      variant: 'primary',
-      onClick: () => ctx.onSave(),
-      disabled: !state.source,
-    }),
+    h('div', { class: 'jie-topbar__save' }, [
+      button({
+        label: t('Save'),
+        variant: 'primary',
+        onClick: () => ctx.onSave(),
+        disabled: !state.source,
+      }),
+      button({
+        label: t('Save as'),
+        onClick: () => ctx.onSaveAs(),
+        disabled: !state.source,
+      }),
+    ]),
     h('div', { class: 'jie-topbar__meta' }, [
       size ? h('span', {}, `${size.width} x ${size.height} px`) : null,
       icon(ICONS.book),

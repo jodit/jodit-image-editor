@@ -77,6 +77,12 @@
   background: var(--jie-surface);
 }
 
+.jie-topbar__save {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .jie-topbar__meta {
   display: flex;
   align-items: center;

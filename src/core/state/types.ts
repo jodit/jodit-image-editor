@@ -142,6 +142,12 @@ export interface EditorState {
   history: HistoryState<Design>;
   selectedAnnotationId: string | null;
   theme: ThemeName;
+  /**
+   * Show the built-in top toolbar (Save / size / zoom / undo-redo). Hide it
+   * (`false`) to embed the editor chrome-less and drive those actions from your
+   * own UI via `save()` / `saveAs()` / `update()`.
+   */
+  showToolbar: boolean;
   /** Active locale id. `'en'` (default) needs no dictionary. */
   locale: string;
   /** Smallest allowed crop frame size, in source pixels (per axis). */
@@ -162,6 +168,7 @@ export interface EditorPatch {
   activeTool?: string | null;
   zoom?: number;
   theme?: ThemeName;
+  showToolbar?: boolean;
   locale?: string;
   minCropSize?: number;
   minResizeSize?: number;

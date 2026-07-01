@@ -9,6 +9,7 @@ const ru: Locale = {
   name: 'Русский',
   messages: {
     Save: 'Сохранить',
+    'Save as': 'Сохранить как',
     'Zoom out': 'Отдалить',
     'Zoom in': 'Приблизить',
     Reset: 'Сбросить',

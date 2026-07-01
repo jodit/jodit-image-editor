@@ -66,6 +66,8 @@ export interface ImageEditorProps {
   previewMaxSize?: number;
   /** Called when the user presses Save (after `toBlob`). */
   onSave?: (blob: Blob, editor: ImageEditor) => void;
+  /** Called when the user presses "Save as" (after `toBlob`). */
+  onSaveAs?: (blob: Blob, editor: ImageEditor) => void;
   /**
    * Confirmation gate for destructive actions (Reset). Injected for testability;
    * defaults to `window.confirm`. Return `true` to proceed.
@@ -88,6 +90,7 @@ export class ImageEditor {
   private readonly processor: ImageProcessor;
   private readonly previewMaxSize: number;
   private readonly onSaveCb: ImageEditorProps['onSave'];
+  private readonly onSaveAsCb: ImageEditorProps['onSaveAs'];
   private readonly confirm: (message: string) => boolean;
 
   private source: RasterImage | null = null;
@@ -113,6 +116,7 @@ export class ImageEditor {
     this.processor = props.processor ?? createDefaultProcessor();
     this.previewMaxSize = props.previewMaxSize ?? 1600;
     this.onSaveCb = props.onSave;
+    this.onSaveAsCb = props.onSaveAs;
     this.confirm =
       props.confirm ??
       ((message) => (typeof window !== 'undefined' ? window.confirm(message) : true));
@@ -150,6 +154,30 @@ export class ImageEditor {
   /** The one universal mutation entry point. Returns `this` for chaining. */
   update(patch: EditorPatch): this {
     this.store.update(patch);
+    return this;
+  }
+
+  /**
+   * Programmatically trigger **Save** — exports the current design and invokes
+   * the `onSave` handler (and fires a `jie:save` DOM event). Lets a host that
+   * hides the built-in toolbar (`showToolbar: false`) drive saving from its own
+   * UI. No-op until an image is loaded.
+   */
+  async save(): Promise<void> {
+    return this.handleSave();
+  }
+
+  /** Programmatically trigger **Save as** — like {@link save} but for `onSaveAs`. */
+  async saveAs(): Promise<void> {
+    return this.handleSaveAs();
+  }
+
+  /**
+   * Reset every edit back to the original (behind the configured `confirm`
+   * gate). Equivalent to the built-in Reset button.
+   */
+  reset(): this {
+    this.handleReset();
     return this;
   }
 
@@ -234,6 +262,7 @@ export class ImageEditor {
       tools: this.registry.list(),
       t: this.translator(),
       onSave: () => void this.handleSave(),
+      onSaveAs: () => void this.handleSaveAs(),
       onReset: () => this.handleReset(),
       beginCropDrag: (handle, event) => this.beginCropDrag(handle, event),
       beginCropRotate: (event) => this.beginCropRotate(event),
@@ -261,6 +290,15 @@ export class ImageEditor {
     const blob = await this.toBlob();
     this.onSaveCb?.(blob, this);
     this.container.dispatchEvent(new CustomEvent('jie:save', { detail: { blob }, bubbles: true }));
+  }
+
+  private async handleSaveAs(): Promise<void> {
+    if (!this.source) return;
+    const blob = await this.toBlob();
+    this.onSaveAsCb?.(blob, this);
+    this.container.dispatchEvent(
+      new CustomEvent('jie:saveas', { detail: { blob }, bubbles: true }),
+    );
   }
 
   private ensureViewportObserver(): void {

@@ -17,6 +17,9 @@ export function reduce(state: EditorState, patch: EditorPatch): EditorState {
   if (patch.activeTool !== undefined) next = set(next, { activeTool: patch.activeTool });
   if (patch.zoom !== undefined) next = set(next, { zoom: sanitizeZoom(patch.zoom) });
   if (patch.theme !== undefined) next = set(next, { theme: patch.theme });
+  if (patch.showToolbar !== undefined) {
+    next = set(next, { showToolbar: patch.showToolbar });
+  }
   if (patch.locale !== undefined) next = set(next, { locale: patch.locale });
   if (patch.minCropSize !== undefined) {
     next = set(next, { minCropSize: Math.max(1, patch.minCropSize) });

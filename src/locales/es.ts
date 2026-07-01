@@ -6,6 +6,7 @@ const es: Locale = {
   name: 'Español',
   messages: {
     Save: 'Guardar',
+    'Save as': 'Guardar como',
     'Zoom out': 'Alejar',
     'Zoom in': 'Acercar',
     Reset: 'Restablecer',

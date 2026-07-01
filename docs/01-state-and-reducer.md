@@ -15,6 +15,7 @@ interface EditorState {
   activeTool: string | null; // which tool inside the tab is active
   zoom: number; // preview zoom factor
   theme: 'light' | 'dark';
+  showToolbar: boolean; // render the built-in top bar (hide it to embed chrome-less)
   selectedAnnotationId: string | null;
   viewport: Size | null; // measured size of the preview area
   source: SourceMeta | null; // metadata of the loaded image

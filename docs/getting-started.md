@@ -89,6 +89,8 @@ one automatically.
 | `editor.update(patch)`                   | The **one** mutation entry point.               |
 | `editor.fromBlob(blob)`                  | Load an image.                                  |
 | `editor.toBlob(opts?)`                   | Render the current design at full res → `Blob`. |
+| `editor.save()` / `editor.saveAs()`      | Export + call `onSave` / `onSaveAs`.            |
+| `editor.reset()`                         | Reset all edits (behind the `confirm` gate).    |
 | `editor.use(plugin)`                     | Apply an extension.                             |
 | `editor.destroy()`                       | Tear everything down.                           |
 
@@ -101,6 +103,30 @@ editor.update({ history: { step: -1 } }); // undo
 editor.update({ history: { step: +1 } }); // redo
 editor.update({ design: { rotate: 90 } }); // an edit
 editor.update({ resetDesign: true }); // back to the original
+editor.update({ showToolbar: false }); // hide the built-in top bar
+```
+
+### Embed without the built-in toolbar
+
+Hide the top bar (Save / size / zoom / undo-redo) with `showToolbar: false` and
+drive it from your own UI — the built-in bar also has **Save** and **Save as**:
+
+```ts
+const editor = new ImageEditor({
+  container: '#editor',
+  state: { showToolbar: false },
+  onSave: (blob) => overwrite(blob),
+  onSaveAs: (blob) => saveUnderNewName(blob),
+});
+
+saveButton.onclick = () => editor.save();
+saveAsButton.onclick = () => editor.saveAs();
+undoButton.onclick = () => editor.update({ history: { step: -1 } });
+
+import { selectors } from '@jodit/image-editor';
+editor.store.subscribe((s) => {
+  undoButton.disabled = !selectors.selectCanUndo(s);
+});
 ```
 
 ## Other languages

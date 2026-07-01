@@ -6,6 +6,7 @@ const fr: Locale = {
   name: 'Français',
   messages: {
     Save: 'Enregistrer',
+    'Save as': 'Enregistrer sous',
     'Zoom out': 'Dézoomer',
     'Zoom in': 'Zoomer',
     Reset: 'Réinitialiser',

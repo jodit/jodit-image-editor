@@ -76,8 +76,40 @@ const result = await editor.toBlob({ type: 'image/png' });
 | `editor.update(patch)`                   | The **one** universal mutation. Returns `this`.        |
 | `editor.fromBlob(blob)`                  | Decode an image blob into the editor.                  |
 | `editor.toBlob(opts?)`                   | Render the current design at full resolution → `Blob`. |
+| `editor.save()`                          | Export + invoke `onSave` (fires `jie:save`).           |
+| `editor.saveAs()`                        | Export + invoke `onSaveAs` (fires `jie:saveas`).       |
+| `editor.reset()`                         | Reset every edit, behind the `confirm` gate.           |
 | `editor.use(plugin)`                     | Apply an extension.                                    |
 | `editor.destroy()`                       | Tear down listeners, observers and the DOM tree.       |
+
+### Embedding without the built-in toolbar
+
+The top bar (Save / size / zoom / undo-redo) is just `state.showToolbar`. Hide it
+and drive everything from your own UI — the host app subscribes to the store and
+calls the same public API:
+
+```ts
+const editor = new ImageEditor({
+  container: '#editor',
+  state: { showToolbar: false }, // no built-in top bar
+  onSave: (blob) => overwrite(blob),
+  onSaveAs: (blob) => saveUnderNewName(blob),
+});
+
+// Your own buttons drive it:
+saveButton.onclick = () => editor.save();
+saveAsButton.onclick = () => editor.saveAs();
+undoButton.onclick = () => editor.update({ history: { step: -1 } });
+
+// Keep your button states in sync with the editor:
+import { selectors } from '@jodit/image-editor';
+editor.store.subscribe((state) => {
+  undoButton.disabled = !selectors.selectCanUndo(state);
+  saveButton.disabled = !state.source;
+});
+```
+
+`showToolbar` is also a normal patch: `editor.update({ showToolbar: false })`.
 
 ### Undo / redo are state, not methods
 

@@ -6,6 +6,7 @@ const zh: Locale = {
   name: '简体中文',
   messages: {
     Save: '保存',
+    'Save as': '另存为',
     'Zoom out': '缩小',
     'Zoom in': '放大',
     Reset: '重置',

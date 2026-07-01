@@ -17,6 +17,9 @@ const editor = new ImageEditor({ container: '#editor', onSave: (blob) => save(bl
 | `update(patch)`    | The one universal mutation (incl. undo/redo & navigation).            |
 | `fromBlob(blob)`   | Decode an image; resets the design; downscales a preview raster.      |
 | `toBlob(options?)` | Render the current design at **full** resolution → `Blob`.            |
+| `save()`           | Export + call `onSave` (fires `jie:save`). No-op with no image.       |
+| `saveAs()`         | Export + call `onSaveAs` (fires `jie:saveas`).                        |
+| `reset()`          | Reset all edits, behind the `confirm` gate.                           |
 | `use(plugin)`      | Apply an extension.                                                   |
 | `destroy()`        | Disconnect the resize observer, drag listeners, plugins and DOM tree. |
 
@@ -32,9 +35,15 @@ const editor = new ImageEditor({ container: '#editor', onSave: (blob) => save(bl
 
 Props: `container`, `image?`, `state?`, `plugins?`, `tools?`, `locale?`,
 `locales?`, `scheduler?`, `processor?`, `previewMaxSize?`, `confirm?`, `onSave?`,
-and the size limits `minCropSize?` (smallest crop frame, source px — default 8)
-and `minResizeSize?` (smallest Resize dimension, px — default 1). A `jie:save`
-`CustomEvent` is also dispatched on the container when the user saves.
+`onSaveAs?`, and the size limits `minCropSize?` (smallest crop frame, source px —
+default 8) and `minResizeSize?` (smallest Resize dimension, px — default 1).
+`jie:save` / `jie:saveas` `CustomEvent`s are dispatched on the container when the
+user saves.
+
+To embed the editor without its own top bar, start it with
+`state: { showToolbar: false }` (or `update({ showToolbar: false })`) and drive
+Save / Save as / undo-redo from your own UI via `save()`, `saveAs()` and
+`update(...)`, subscribing to `editor.store` for button state.
 
 ```ts
 new ImageEditor({ container: '#editor', minCropSize: 64, minResizeSize: 16 });
